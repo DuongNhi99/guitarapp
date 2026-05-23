@@ -98,7 +98,7 @@ function pluck(freq: number, ctx: AudioContext) {
 
 // ─── Pitch detection (Normalised Square Difference – McLeod Pitch Method) ─────
 
-function autoCorrelate(buf: Float32Array, sampleRate: number): number {
+function autoCorrelate(buf: Float32Array<ArrayBuffer>, sampleRate: number): number {
   const n = buf.length;
 
   // Silence gate
@@ -303,7 +303,7 @@ export default function GuitarPage() {
   const tunerAnalyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const tunerRafRef = useRef<number>(0);
-  const tunerBufRef = useRef<Float32Array | null>(null);
+  const tunerBufRef = useRef<Float32Array<ArrayBuffer> | null>(null);
   const tunerLastTsRef = useRef<number>(0);
 
   const audioRef = useRef<AudioContext | null>(null);
