@@ -213,6 +213,7 @@ function FretCell({
   onClick,
 }: CellProps) {
   const name = getNoteName(midi, vi);
+  const nameEn = NOTE_EN[noteClass(midi)]; // always-English short name for marked dots
   const sharp = isSharpNote(midi);
 
   return (
@@ -245,11 +246,9 @@ function FretCell({
           className="relative z-10 w-7 h-7 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center transition-all shadow-lg shadow-purple-900/60 border border-purple-400/60 focus:outline-none"
           aria-label={`Bỏ đánh dấu ${name}`}
         >
-          {showNames && (
-            <span className="text-[8px] font-bold text-white leading-none select-none">
-              {name}
-            </span>
-          )}
+          <span className="text-[10px] font-extrabold text-white leading-none select-none">
+            {nameEn}
+          </span>
         </button>
       ) : (
         <button
@@ -479,7 +478,6 @@ export default function GuitarPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white pb-28 sm:pb-10">
       <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8">
-
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-2.5">
@@ -487,7 +485,9 @@ export default function GuitarPage() {
               <Music className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white leading-none">Guitar Online</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white leading-none">
+                Guitar Online
+              </h1>
               <p className="text-gray-500 text-[11px] mt-0.5 hidden sm:block">
                 {"Nhấn vào cần đàn để phát âm · Phím 1–6 để gảy dây mở"}
               </p>
@@ -497,10 +497,16 @@ export default function GuitarPage() {
             onClick={() => setMuted((v) => !v)}
             className={cn(
               "sm:hidden w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
-              muted ? "bg-red-900/50 text-red-400" : "bg-gray-800 text-gray-400 hover:text-white",
+              muted
+                ? "bg-red-900/50 text-red-400"
+                : "bg-gray-800 text-gray-400 hover:text-white",
             )}
           >
-            {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            {muted ? (
+              <VolumeX className="w-5 h-5" />
+            ) : (
+              <Volume2 className="w-5 h-5" />
+            )}
           </button>
         </div>
 
@@ -515,7 +521,11 @@ export default function GuitarPage() {
                 : "bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700",
             )}
           >
-            {showNames ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {showNames ? (
+              <Eye className="w-4 h-4" />
+            ) : (
+              <EyeOff className="w-4 h-4" />
+            )}
             {"Hiển thị nốt"}
           </button>
           <button
@@ -530,7 +540,8 @@ export default function GuitarPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-green-700 text-white hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             <Play className="w-4 h-4" />
-            {"Chơi"}{marked.size > 0 ? " (" + String(marked.size) + ")" : ""}
+            {"Chơi"}
+            {marked.size > 0 ? " (" + String(marked.size) + ")" : ""}
           </button>
           <button
             onClick={clearAll}
@@ -561,7 +572,11 @@ export default function GuitarPage() {
                 : "bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700",
             )}
           >
-            {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {muted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
           </button>
         </div>
 
@@ -571,18 +586,32 @@ export default function GuitarPage() {
             <div className="flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-3 sm:py-4">
               <div className="flex items-center gap-3 flex-shrink-0">
                 <div className="flex flex-col items-center min-w-[40px]">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-white leading-none tracking-tight">{lastNote.en}</span>
-                  <span className="text-purple-400 text-sm font-semibold mt-0.5">{lastNote.vi}</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-white leading-none tracking-tight">
+                    {lastNote.en}
+                  </span>
+                  <span className="text-purple-400 text-sm font-semibold mt-0.5">
+                    {lastNote.vi}
+                  </span>
                 </div>
                 <div className="h-10 w-px bg-gray-700 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-gray-400 text-xs">
-                    {"Dây"}{" "}<span className="font-bold text-white">{useVi ? OPEN_LABELS_VI[lastNote.si] : OPEN_LABELS_EN[lastNote.si]}</span>
+                    {"Dây"}{" "}
+                    <span className="font-bold text-white">
+                      {useVi
+                        ? OPEN_LABELS_VI[lastNote.si]
+                        : OPEN_LABELS_EN[lastNote.si]}
+                    </span>
                   </span>
                   <span className="text-gray-400 text-xs">
-                    {"Phím"}{" "}<span className="font-bold text-white">{lastNote.fret}</span>
+                    {"Phím"}{" "}
+                    <span className="font-bold text-white">
+                      {lastNote.fret}
+                    </span>
                   </span>
-                  <span className="text-gray-600 text-[10px]">MIDI {lastNote.midi}</span>
+                  <span className="text-gray-600 text-[10px]">
+                    MIDI {lastNote.midi}
+                  </span>
                 </div>
               </div>
               <div className="hidden sm:flex flex-wrap gap-1 ml-auto">
@@ -593,7 +622,9 @@ export default function GuitarPage() {
                       "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
                       i === noteClass(lastNote.midi)
                         ? "bg-purple-600 text-white shadow shadow-purple-900/60 ring-2 ring-purple-400/50"
-                        : n.includes("#") ? "bg-gray-800 text-gray-600" : "bg-gray-800/60 text-gray-500",
+                        : n.includes("#")
+                          ? "bg-gray-800 text-gray-600"
+                          : "bg-gray-800/60 text-gray-500",
                     )}
                   >
                     {useVi ? NOTE_VI[i] : n}
@@ -619,7 +650,9 @@ export default function GuitarPage() {
                     {"Đang nghe..."}
                   </span>
                 ) : (
-                  <span className="text-gray-500">{"Microphone chưa kích hoạt"}</span>
+                  <span className="text-gray-500">
+                    {"Microphone chưa kích hoạt"}
+                  </span>
                 )}
               </div>
               <button
@@ -631,108 +664,160 @@ export default function GuitarPage() {
                     : "bg-purple-700 text-white hover:bg-purple-600",
                 )}
               >
-                {tunerActive
-                  ? <><MicOff className="w-3.5 h-3.5" />{"Dừng"}</>
-                  : <><Mic className="w-3.5 h-3.5" />{"Bắt đầu"}</>}
+                {tunerActive ? (
+                  <>
+                    <MicOff className="w-3.5 h-3.5" />
+                    {"Dừng"}
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3.5 h-3.5" />
+                    {"Bắt đầu"}
+                  </>
+                )}
               </button>
             </div>
             <div className="px-4 sm:px-5 py-5">
-              {tunerFreq > 0
-                ? (() => {
-                    const roundedMidi = Math.round(tunerMidi);
-                    const cents = (tunerMidi - roundedMidi) * 100;
-                    const inTune = Math.abs(cents) <= 5;
-                    const close = Math.abs(cents) <= 20;
-                    const nc = ((roundedMidi % 12) + 12) % 12;
-                    const noteEn = NOTE_EN[nc];
-                    const noteVi = NOTE_VI[nc];
-                    let targetSi = 0;
-                    let bestDist = Infinity;
-                    OPEN_MIDI.forEach((m, si) => {
-                      const d = Math.abs(tunerMidi - m);
-                      if (d < bestDist) { bestDist = d; targetSi = si; }
-                    });
-                    const needlePos = Math.min(Math.max((cents + 50) / 100, 0), 1);
-                    const centsRounded = Math.round(cents);
-                    const centsLabel = centsRounded >= 0
-                      ? ("+" + centsRounded + " cents — Hơi cao")
-                      : (String(centsRounded) + " cents — Hơi thấp");
-                    return (
-                      <div className="flex flex-col items-center gap-5">
-                        <div className="flex items-center gap-6 flex-wrap justify-center">
-                          <div className={cn(
+              {tunerFreq > 0 ? (
+                (() => {
+                  const roundedMidi = Math.round(tunerMidi);
+                  const cents = (tunerMidi - roundedMidi) * 100;
+                  const inTune = Math.abs(cents) <= 5;
+                  const close = Math.abs(cents) <= 20;
+                  const nc = ((roundedMidi % 12) + 12) % 12;
+                  const noteEn = NOTE_EN[nc];
+                  const noteVi = NOTE_VI[nc];
+                  let targetSi = 0;
+                  let bestDist = Infinity;
+                  OPEN_MIDI.forEach((m, si) => {
+                    const d = Math.abs(tunerMidi - m);
+                    if (d < bestDist) {
+                      bestDist = d;
+                      targetSi = si;
+                    }
+                  });
+                  const needlePos = Math.min(
+                    Math.max((cents + 50) / 100, 0),
+                    1,
+                  );
+                  const centsRounded = Math.round(cents);
+                  const centsLabel =
+                    centsRounded >= 0
+                      ? "+" + centsRounded + " cents — Hơi cao"
+                      : String(centsRounded) + " cents — Hơi thấp";
+                  return (
+                    <div className="flex flex-col items-center gap-5">
+                      <div className="flex items-center gap-6 flex-wrap justify-center">
+                        <div
+                          className={cn(
                             "w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center transition-all",
                             inTune
                               ? "border-green-500 bg-green-900/20 shadow-lg shadow-green-900/30"
                               : close
                                 ? "border-yellow-500 bg-yellow-900/15"
                                 : "border-red-500/60 bg-red-900/10",
-                          )}>
-                            <span className="text-3xl font-extrabold text-white leading-none">{noteEn}</span>
-                            <span className="text-xs text-gray-400 mt-0.5">{noteVi}</span>
-                          </div>
-                          <div className="flex flex-col gap-1.5 text-sm">
-                            <div className="text-gray-400">
-                              {"Tần số: "}<span className="text-white font-mono font-semibold">{tunerFreq.toFixed(1)} Hz</span>
-                            </div>
-                            <div className="text-gray-400">
-                              {"Dây gần nhất: "}<span className="text-purple-300 font-semibold">{OPEN_LABELS_EN[targetSi]} {"—"} {OPEN_LABELS_VI[targetSi]}</span>
-                            </div>
-                            <div className={cn("font-semibold", inTune ? "text-green-400" : close ? "text-yellow-400" : "text-red-400")}>
-                              {inTune ? "✓ Đúng chuẩn" : centsLabel}
-                            </div>
-                          </div>
+                          )}
+                        >
+                          <span className="text-3xl font-extrabold text-white leading-none">
+                            {noteEn}
+                          </span>
+                          <span className="text-xs text-gray-400 mt-0.5">
+                            {noteVi}
+                          </span>
                         </div>
-                        <div className="w-full max-w-xs">
-                          <div className="flex justify-between text-[10px] text-gray-600 mb-1 px-1">
-                            <span>{"♭ Thấp"}</span><span>{"Chuẩn"}</span><span>{"Cao ♯"}</span>
+                        <div className="flex flex-col gap-1.5 text-sm">
+                          <div className="text-gray-400">
+                            {"Tần số: "}
+                            <span className="text-white font-mono font-semibold">
+                              {tunerFreq.toFixed(1)} Hz
+                            </span>
                           </div>
-                          <div className="relative h-5 rounded-full overflow-hidden bg-gray-800">
-                            <div
-                              className="absolute inset-0"
-                              style={{ background: "linear-gradient(to right, #dc2626 0%, #fbbf24 28%, #16a34a 42%, #16a34a 58%, #fbbf24 72%, #dc2626 100%)" }}
-                            />
-                            <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/50" />
-                            <div
-                              className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-gray-500 transition-[left] duration-75"
-                              style={{ left: "calc(" + String(needlePos * 100) + "% - 10px)" }}
-                            />
+                          <div className="text-gray-400">
+                            {"Dây gần nhất: "}
+                            <span className="text-purple-300 font-semibold">
+                              {OPEN_LABELS_EN[targetSi]} {"—"}{" "}
+                              {OPEN_LABELS_VI[targetSi]}
+                            </span>
                           </div>
-                          <div className="text-center text-[10px] text-gray-500 mt-1.5">
-                            {centsRounded >= 0 ? "+" + String(centsRounded) : String(centsRounded)} cents
+                          <div
+                            className={cn(
+                              "font-semibold",
+                              inTune
+                                ? "text-green-400"
+                                : close
+                                  ? "text-yellow-400"
+                                  : "text-red-400",
+                            )}
+                          >
+                            {inTune ? "✓ Đúng chuẩn" : centsLabel}
                           </div>
-                        </div>
-                        <div className="flex gap-1.5 flex-wrap justify-center">
-                          {[5, 4, 3, 2, 1, 0].map((si) => (
-                            <div
-                              key={si}
-                              className={cn(
-                                "flex flex-col items-center px-3 py-2 rounded-xl text-xs transition-all",
-                                si === targetSi
-                                  ? "bg-purple-600/80 text-white shadow shadow-purple-900/40"
-                                  : "bg-gray-800/50 text-gray-600",
-                              )}
-                            >
-                              <span className="font-bold text-[11px]">{OPEN_LABELS_EN[si]}</span>
-                              <span className="text-[9px] opacity-70">{OPEN_LABELS_VI[si]}</span>
-                            </div>
-                          ))}
                         </div>
                       </div>
-                    );
-                  })()
-                : (
-                  <div className="flex flex-col items-center gap-3 py-3">
-                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center">
-                      <Mic className="w-8 h-8 text-gray-700" />
+                      <div className="w-full max-w-xs">
+                        <div className="flex justify-between text-[10px] text-gray-600 mb-1 px-1">
+                          <span>{"♭ Thấp"}</span>
+                          <span>{"Chuẩn"}</span>
+                          <span>{"Cao ♯"}</span>
+                        </div>
+                        <div className="relative h-5 rounded-full overflow-hidden bg-gray-800">
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                "linear-gradient(to right, #dc2626 0%, #fbbf24 28%, #16a34a 42%, #16a34a 58%, #fbbf24 72%, #dc2626 100%)",
+                            }}
+                          />
+                          <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/50" />
+                          <div
+                            className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-gray-500 transition-[left] duration-75"
+                            style={{
+                              left:
+                                "calc(" + String(needlePos * 100) + "% - 10px)",
+                            }}
+                          />
+                        </div>
+                        <div className="text-center text-[10px] text-gray-500 mt-1.5">
+                          {centsRounded >= 0
+                            ? "+" + String(centsRounded)
+                            : String(centsRounded)}{" "}
+                          cents
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-wrap justify-center">
+                        {[5, 4, 3, 2, 1, 0].map((si) => (
+                          <div
+                            key={si}
+                            className={cn(
+                              "flex flex-col items-center px-3 py-2 rounded-xl text-xs transition-all",
+                              si === targetSi
+                                ? "bg-purple-600/80 text-white shadow shadow-purple-900/40"
+                                : "bg-gray-800/50 text-gray-600",
+                            )}
+                          >
+                            <span className="font-bold text-[11px]">
+                              {OPEN_LABELS_EN[si]}
+                            </span>
+                            <span className="text-[9px] opacity-70">
+                              {OPEN_LABELS_VI[si]}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-gray-600 text-sm text-center leading-relaxed">
-                      {tunerActive
-                        ? "Đang chờ tín hiệu âm thanh từ micro..."
-                        : "Nhấn Bắt đầu và cho phép truy cập microphone để chỉnh dây đàn"}
-                    </p>
+                  );
+                })()
+              ) : (
+                <div className="flex flex-col items-center gap-3 py-3">
+                  <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center">
+                    <Mic className="w-8 h-8 text-gray-700" />
                   </div>
-                )}
+                  <p className="text-gray-600 text-sm text-center leading-relaxed">
+                    {tunerActive
+                      ? "Đang chờ tín hiệu âm thanh từ micro..."
+                      : "Nhấn Bắt đầu và cho phép truy cập microphone để chỉnh dây đàn"}
+                  </p>
+                </div>
+              )}
             </div>
             {tunerActive && (
               <div className="px-4 sm:px-5 pb-4 flex items-center gap-2 text-xs text-gray-600">
@@ -764,10 +849,17 @@ export default function GuitarPage() {
             <div className="min-w-[600px]">
               <div className="flex items-center mb-1 select-none">
                 <div className="w-11 sm:w-14 flex-shrink-0" />
-                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-700/60 font-mono">0</div>
+                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-700/60 font-mono">
+                  0
+                </div>
                 <div className="w-3 flex-shrink-0" />
                 {Array.from({ length: NUM_FRETS }, (_, i) => (
-                  <div key={i} className="flex-1 text-center text-[10px] text-amber-700/60 font-mono">{i + 1}</div>
+                  <div
+                    key={i}
+                    className="flex-1 text-center text-[10px] text-amber-700/60 font-mono"
+                  >
+                    {i + 1}
+                  </div>
                 ))}
               </div>
               {displayOrder.map((si) => {
@@ -776,7 +868,12 @@ export default function GuitarPage() {
                 return (
                   <div key={si} className="flex items-center">
                     <div className="w-11 sm:w-14 flex-shrink-0 flex items-center justify-end pr-2 sm:pr-3 select-none">
-                      <span className={cn("text-xs font-mono font-semibold", isWound ? "text-amber-400/80" : "text-amber-200/70")}>
+                      <span
+                        className={cn(
+                          "text-xs font-mono font-semibold",
+                          isWound ? "text-amber-400/80" : "text-amber-200/70",
+                        )}
+                      >
                         {useVi ? OPEN_LABELS_VI[si] : OPEN_LABELS_EN[si]}
                       </span>
                     </div>
@@ -817,11 +914,16 @@ export default function GuitarPage() {
                 {Array.from({ length: NUM_FRETS }, (_, i) => {
                   const f = i + 1;
                   return (
-                    <div key={f} className="flex-1 flex items-center justify-center py-1.5">
+                    <div
+                      key={f}
+                      className="flex-1 flex items-center justify-center py-1.5"
+                    >
                       {FRET_DOTS.has(f) && (
                         <div className="flex gap-1">
                           <div className="w-2 h-2 rounded-full bg-amber-700/55" />
-                          {f === DOUBLE_DOT_FRET && <div className="w-2 h-2 rounded-full bg-amber-700/55" />}
+                          {f === DOUBLE_DOT_FRET && (
+                            <div className="w-2 h-2 rounded-full bg-amber-700/55" />
+                          )}
                         </div>
                       )}
                     </div>
@@ -852,20 +954,22 @@ export default function GuitarPage() {
           </div>
           <div className="p-4">
             <div className="flex flex-wrap gap-2">
-              {CHORD_GROUPS[activeChordGroup].names.filter((n) => CHORDS[n]).map((name) => (
-                <button
-                  key={name}
-                  onClick={() => selectChord(name)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
-                    activeChord === name
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
-                  )}
-                >
-                  {name}
-                </button>
-              ))}
+              {CHORD_GROUPS[activeChordGroup].names
+                .filter((n) => CHORDS[n])
+                .map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => selectChord(name)}
+                    className={cn(
+                      "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
+                      activeChord === name
+                        ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
+                        : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
+                    )}
+                  >
+                    {name}
+                  </button>
+                ))}
             </div>
           </div>
         </div>
@@ -874,7 +978,9 @@ export default function GuitarPage() {
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 p-4">
           <h2 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
             {"Dây đàn chuẩn"}
-            <span className="text-xs text-gray-600 font-normal">{"Nhấn để nghe"}</span>
+            <span className="text-xs text-gray-600 font-normal">
+              {"Nhấn để nghe"}
+            </span>
           </h2>
           <div className="grid grid-cols-6 gap-2">
             {[0, 1, 2, 3, 4, 5].map((si) => (
@@ -883,10 +989,17 @@ export default function GuitarPage() {
                 onClick={() => playNote(si, 0)}
                 className="flex flex-col items-center gap-1 py-3 rounded-xl bg-gray-800 hover:bg-purple-900/40 border border-gray-700 hover:border-purple-600/60 transition-all active:scale-95 group"
               >
-                <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">{OPEN_LABELS_EN[si]}</span>
-                <span className="text-[10px] text-gray-500 group-hover:text-purple-400/70 transition-colors">{OPEN_LABELS_VI[si]}</span>
+                <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                  {OPEN_LABELS_EN[si]}
+                </span>
+                <span className="text-[10px] text-gray-500 group-hover:text-purple-400/70 transition-colors">
+                  {OPEN_LABELS_VI[si]}
+                </span>
                 <div
-                  className={cn("w-3/4 rounded-full mt-0.5", si <= 2 ? "bg-amber-600/50" : "bg-gray-400/30")}
+                  className={cn(
+                    "w-3/4 rounded-full mt-0.5",
+                    si <= 2 ? "bg-amber-600/50" : "bg-gray-400/30",
+                  )}
                   style={{ height: String(STRING_THICKNESS[si]) + "px" }}
                 />
               </button>
@@ -901,11 +1014,20 @@ export default function GuitarPage() {
             className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-400 hover:text-gray-200 transition-colors"
           >
             <span>{"Hướng dẫn sử dụng"}</span>
-            <span className={cn("text-gray-600 transition-transform duration-200", showInstructions ? "rotate-180" : "")}>{"▾"}</span>
+            <span
+              className={cn(
+                "text-gray-600 transition-transform duration-200",
+                showInstructions ? "rotate-180" : "",
+              )}
+            >
+              {"▾"}
+            </span>
           </button>
           {showInstructions && (
             <div className="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8 text-xs text-gray-500 border-t border-gray-800 pt-3">
-              <div>{"• Nhấn vào ô trên cần đàn để phát âm và đánh dấu nốt"}</div>
+              <div>
+                {"• Nhấn vào ô trên cần đàn để phát âm và đánh dấu nốt"}
+              </div>
               <div>{"• Nhấn lại nốt đã đánh dấu để bỏ đánh dấu"}</div>
               <div>{"• Bật Hiển thị nốt để xem tên tất cả các nốt"}</div>
               <div>{"• Chuyển đổi Tiếng Việt / English cho tên nốt nhạc"}</div>
@@ -916,7 +1038,6 @@ export default function GuitarPage() {
             </div>
           )}
         </div>
-
       </div>
 
       {/* Mobile bottom toolbar */}
@@ -926,17 +1047,25 @@ export default function GuitarPage() {
             onClick={() => setShowNames((v) => !v)}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
-              showNames ? "text-purple-400 bg-purple-900/20" : "text-gray-500 active:bg-gray-800/60",
+              showNames
+                ? "text-purple-400 bg-purple-900/20"
+                : "text-gray-500 active:bg-gray-800/60",
             )}
           >
-            {showNames ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            {showNames ? (
+              <Eye className="w-5 h-5" />
+            ) : (
+              <EyeOff className="w-5 h-5" />
+            )}
             <span className="text-[9px] font-medium">{"Nốt"}</span>
           </button>
           <button
             onClick={() => setUseVi((v) => !v)}
             className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-gray-500 active:bg-gray-800/60 transition-all"
           >
-            <span className="text-sm font-bold leading-none">{useVi ? "Vi" : "En"}</span>
+            <span className="text-sm font-bold leading-none">
+              {useVi ? "Vi" : "En"}
+            </span>
             <span className="text-[9px] font-medium mt-0.5">{"Ngôn ngữ"}</span>
           </button>
           <button
@@ -944,7 +1073,9 @@ export default function GuitarPage() {
             disabled={marked.size === 0}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
-              marked.size > 0 ? "text-green-400 active:bg-green-900/20" : "text-gray-700",
+              marked.size > 0
+                ? "text-green-400 active:bg-green-900/20"
+                : "text-gray-700",
             )}
           >
             <Play className="w-5 h-5" />
@@ -957,7 +1088,9 @@ export default function GuitarPage() {
             disabled={marked.size === 0}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
-              marked.size > 0 ? "text-red-400 active:bg-red-900/20" : "text-gray-700",
+              marked.size > 0
+                ? "text-red-400 active:bg-red-900/20"
+                : "text-gray-700",
             )}
           >
             <RotateCcw className="w-5 h-5" />
@@ -967,7 +1100,9 @@ export default function GuitarPage() {
             onClick={() => setTunerOpen((v) => !v)}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
-              tunerOpen ? "text-cyan-400 bg-cyan-900/20" : "text-gray-500 active:bg-gray-800/60",
+              tunerOpen
+                ? "text-cyan-400 bg-cyan-900/20"
+                : "text-gray-500 active:bg-gray-800/60",
             )}
           >
             <Mic className="w-5 h-5" />
@@ -977,10 +1112,16 @@ export default function GuitarPage() {
             onClick={() => setMuted((v) => !v)}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
-              muted ? "text-red-400 bg-red-900/20" : "text-gray-500 active:bg-gray-800/60",
+              muted
+                ? "text-red-400 bg-red-900/20"
+                : "text-gray-500 active:bg-gray-800/60",
             )}
           >
-            {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            {muted ? (
+              <VolumeX className="w-5 h-5" />
+            ) : (
+              <Volume2 className="w-5 h-5" />
+            )}
             <span className="text-[9px] font-medium">{"Âm thanh"}</span>
           </button>
         </div>
