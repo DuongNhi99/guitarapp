@@ -54,6 +54,31 @@ export interface Playlist {
   createdAt: string;
 }
 
+export type Difficulty = "beginner" | "intermediate" | "advanced";
+
+export interface Sheet {
+  id: number;
+  songId: number;
+  title: string;
+  slug: string;
+  artist: Artist;
+  tone: string;
+  capo: number;
+  rhythm: Rhythm;
+  genre: Genre;
+  instruments: string[];
+  difficulty: Difficulty;
+  pages: number;
+  downloads: number;
+  likes: number;
+  views: number;
+  createdAt: string;
+  contributors: string[];
+  chords: string[];
+  content: string;
+  tags: string[];
+}
+
 export interface SearchFilters {
   query: string;
   rhythm?: string;

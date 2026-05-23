@@ -4,6 +4,7 @@ import type {
   Rhythm,
   Genre,
   ChordDiagram,
+  Sheet,
   Playlist,
 } from "../types";
 
@@ -519,3 +520,39 @@ export const CHORD_DIAGRAMS: Record<string, ChordDiagram> = {
 };
 
 export const ALL_CHORDS = Object.keys(CHORD_DIAGRAMS);
+
+export const SHEETS: Sheet[] = SONGS.map((song, i) => {
+  const diffList = ["beginner", "intermediate", "advanced"] as const;
+  const instrMap: Record<number, string[]> = {
+    1: ["guitar", "ukulele"],
+    2: ["guitar"],
+    3: ["guitar", "piano"],
+    4: ["guitar", "piano"],
+    5: ["guitar"],
+    6: ["guitar", "ukulele"],
+    7: ["guitar"],
+    8: ["guitar", "piano"],
+  };
+  return {
+    id: song.id,
+    songId: song.id,
+    title: song.title,
+    slug: song.slug,
+    artist: song.artist,
+    tone: song.tone,
+    capo: song.capo ?? 0,
+    rhythm: song.rhythm,
+    genre: song.genre,
+    instruments: instrMap[song.id] ?? ["guitar"],
+    difficulty: diffList[i % 3],
+    pages: Math.ceil(song.content.split("\n").length / 20),
+    downloads: Math.floor(song.views * 0.15),
+    likes: song.likes,
+    views: song.views,
+    createdAt: song.createdAt,
+    contributors: song.contributors,
+    chords: song.chords,
+    content: song.content,
+    tags: song.tags,
+  };
+});

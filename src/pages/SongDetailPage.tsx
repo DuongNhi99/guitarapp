@@ -21,6 +21,7 @@ import { formatNumber, formatDate, transposeChord } from "../utils";
 import ChordViewer from "../components/ChordViewer";
 import ChordDiagramView from "../components/ChordDiagram";
 import SongCard from "../components/SongCard";
+import { printSheetMusic } from "../utils/printSheet";
 
 export default function SongDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -135,9 +136,12 @@ export default function SongDetailPage() {
                 <Share2 className="w-4 h-4" />
                 Chia sẻ
               </button>
-              <button className="btn-ghost text-sm py-2">
+              <button
+                onClick={() => printSheetMusic(song, transpose, capo)}
+                className="btn-ghost text-sm py-2"
+              >
                 <Printer className="w-4 h-4" />
-                In
+                In / Tải PDF
               </button>
             </div>
           </div>

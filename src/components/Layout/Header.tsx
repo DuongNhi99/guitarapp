@@ -7,15 +7,20 @@ import {
   Music2,
   Guitar,
   BookOpen,
-  ListMusic,
   Radio,
+  FileMusic,
+  Sliders,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "../../utils";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const navItems = [
   { label: "Bài hát", href: "/songs", icon: Music2 },
+  { label: "Bản nhạc", href: "/sheets", icon: FileMusic },
   { label: "Hợp âm", href: "/chords", icon: Guitar },
-  { label: "Playlist", href: "/playlists", icon: ListMusic },
+  { label: "Guitar", href: "/guitar", icon: Sliders },
   { label: "Điệu", href: "/rhythms", icon: Radio },
   { label: "Thể loại", href: "/genres", icon: BookOpen },
 ];
@@ -26,6 +31,7 @@ export default function Header() {
   const [searchFocused, setSearchFocused] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +100,24 @@ export default function Header() {
             </div>
           </form>
 
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="btn-ghost p-2 hidden md:flex"
+            title={
+              theme === "dark"
+                ? "Chuyển sang chế độ sáng"
+                : "Chuyển sang chế độ tối"
+            }
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-purple-500" />
+            )}
+          </button>
+
           {/* Auth buttons - desktop */}
           <div className="hidden md:flex items-center gap-2">
             <Link to="/login" className="btn-ghost text-sm py-1.5">
@@ -140,6 +164,20 @@ export default function Header() {
               </Link>
             ))}
             <div className="pt-3 border-t border-gray-800 flex gap-2">
+              <button
+                onClick={toggleTheme}
+                className="btn-secondary flex items-center gap-2 text-sm py-2.5 px-4"
+              >
+                {theme === "dark" ? (
+                  <>
+                    <Sun className="w-4 h-4 text-amber-400" /> Chế độ sáng
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 text-purple-500" /> Chế độ tối
+                  </>
+                )}
+              </button>
               <Link
                 to="/login"
                 onClick={() => setMenuOpen(false)}

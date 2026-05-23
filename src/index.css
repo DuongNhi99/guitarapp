@@ -80,3 +80,184 @@
 .chord-popup {
   animation: fadeIn 0.15s ease-out;
 }
+
+/* ── Smooth theme transition ──────────────────────────────────────────────── */
+html {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* ── Light theme overrides ────────────────────────────────────────────────── */
+/*
+  Strategy: toggle `light` class on <html>. Override every dark utility class
+  used in this app so no component files need to be touched.
+  Light palette:
+    bg-base    #f4f5f7  (replaces gray-950)
+    bg-card    #ffffff  (replaces gray-900)
+    bg-raised  #edf0f4  (replaces gray-800)
+    bg-subtle  #dde1e9  (replaces gray-700)
+    text-hi    #111827  (replaces white / gray-100)
+    text-mid   #374151  (replaces gray-200/300)
+    text-lo    #6b7280  (replaces gray-400/500)
+    border     #d1d5db  (replaces gray-800 border)
+    border-lo  #e5e7eb  (replaces gray-700 border)
+*/
+
+/* body */
+html.light body {
+  background-color: #f4f5f7;
+  color: #111827;
+}
+
+/* scrollbar */
+html.light ::-webkit-scrollbar-track {
+  background: #e5e7eb;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 9999px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* ── Backgrounds ── */
+html.light .bg-gray-950 {
+  background-color: #f4f5f7 !important;
+}
+html.light .bg-gray-900 {
+  background-color: #ffffff !important;
+}
+html.light .bg-gray-800 {
+  background-color: #edf0f4 !important;
+}
+html.light .bg-gray-700 {
+  background-color: #dde1e9 !important;
+}
+
+/* opacity variants */
+html.light .bg-gray-950\/95 {
+  background-color: rgba(244, 245, 247, 0.95) !important;
+}
+html.light .bg-gray-900\/50 {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+html.light .bg-gray-900\/60 {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+html.light .bg-gray-800\/50 {
+  background-color: rgba(237, 240, 244, 0.5) !important;
+}
+html.light .bg-gray-800\/20 {
+  background-color: rgba(237, 240, 244, 0.2) !important;
+}
+
+/* ── Text ── */
+html.light .text-white {
+  color: #111827 !important;
+}
+html.light .text-gray-100 {
+  color: #111827 !important;
+}
+html.light .text-gray-200 {
+  color: #1f2937 !important;
+}
+html.light .text-gray-300 {
+  color: #374151 !important;
+}
+html.light .text-gray-400 {
+  color: #6b7280 !important;
+}
+html.light .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* ── Borders ── */
+html.light .border-gray-800 {
+  border-color: #d1d5db !important;
+}
+html.light .border-gray-700 {
+  border-color: #e5e7eb !important;
+}
+html.light .border-gray-800\/50 {
+  border-color: rgba(209, 213, 219, 0.5) !important;
+}
+
+/* ── Hover states ── */
+html.light .hover\:bg-gray-800:hover {
+  background-color: #edf0f4 !important;
+}
+html.light .hover\:bg-gray-700:hover {
+  background-color: #dde1e9 !important;
+}
+html.light .hover\:text-white:hover {
+  color: #111827 !important;
+}
+html.light .hover\:border-gray-700:hover {
+  border-color: #e5e7eb !important;
+}
+
+/* ── Focus ── */
+html.light .focus\:border-gray-700:focus {
+  border-color: #d1d5db !important;
+}
+
+/* ── Component classes ── */
+html.light .card {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+html.light .card:hover {
+  border-color: #d1d5db !important;
+}
+html.light .btn-secondary {
+  background-color: #edf0f4 !important;
+  color: #374151 !important;
+}
+html.light .btn-secondary:hover {
+  background-color: #dde1e9 !important;
+}
+html.light .btn-ghost {
+  color: #6b7280 !important;
+}
+html.light .btn-ghost:hover {
+  background-color: #edf0f4 !important;
+  color: #111827 !important;
+}
+html.light .input {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
+}
+html.light .input::placeholder {
+  color: #9ca3af !important;
+}
+html.light .tag {
+  background-color: #edf0f4 !important;
+  color: #374151 !important;
+}
+html.light .tag:hover {
+  background-color: #dde1e9 !important;
+}
+html.light .nav-link {
+  color: #6b7280 !important;
+}
+html.light .nav-link:hover {
+  color: #111827 !important;
+}
+
+/* ── Inline search bar in header ── */
+html.light .bg-gray-800.border-gray-700,
+html.light .bg-gray-900.border-gray-700 {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+}
+
+/* ── Section / dividers ── */
+html.light .divide-gray-800 > * + * {
+  border-color: #e5e7eb !important;
+}
+html.light .divide-gray-700 > * + * {
+  border-color: #d1d5db !important;
+}
