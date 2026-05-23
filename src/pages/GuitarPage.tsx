@@ -283,6 +283,8 @@ export default function GuitarPage() {
   const [useVi, setUseVi] = useState(true);
   const [muted, setMuted] = useState(false);
   const [activeChord, setActiveChord] = useState<string | null>(null);
+  const [activeChordGroup, setActiveChordGroup] = useState(0);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [lastNote, setLastNote] = useState<{
     vi: string;
     en: string;
@@ -475,152 +477,123 @@ export default function GuitarPage() {
   const displayOrder = [5, 4, 3, 2, 1, 0];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white pb-16">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* ── Header ── */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-950 text-white pb-28 sm:pb-10">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-900/50 flex-shrink-0">
               <Music className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white">Guitar Online</h1>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-white leading-none">Guitar Online</h1>
+              <p className="text-gray-500 text-[11px] mt-0.5 hidden sm:block">
+                {"Nhấn vào cần đàn để phát âm · Phím 1–6 để gảy dây mở"}
+              </p>
+            </div>
           </div>
-          <p className="text-gray-400 text-sm ml-12">
-            Nhấn vào cần đàn để phát âm và đánh dấu hợp âm · Phím{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 text-xs font-mono">
-              1
-            </kbd>
-            {" – "}
-            <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 text-xs font-mono">
-              6
-            </kbd>{" "}
-            để gảy dây mở
-          </p>
-        </div>
-
-        {/* ── Controls bar ── */}
-        <div className="flex flex-wrap items-center gap-2 mb-5">
-          <button
-            onClick={() => setShowNames((v) => !v)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-              showNames
-                ? "bg-purple-600 border-purple-500 text-white"
-                : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700",
-            )}
-          >
-            {showNames ? (
-              <Eye className="w-4 h-4" />
-            ) : (
-              <EyeOff className="w-4 h-4" />
-            )}
-            Hiển thị nốt
-          </button>
-
-          <button
-            onClick={() => setUseVi((v) => !v)}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 transition-all"
-          >
-            {useVi ? "Tiếng Việt" : "English"}
-          </button>
-
-          <button
-            onClick={playAll}
-            disabled={marked.size === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-green-700 text-white hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
-            <Play className="w-4 h-4" />
-            Chơi{marked.size > 0 ? ` (${marked.size})` : ""}
-          </button>
-
-          <button
-            onClick={clearAll}
-            disabled={marked.size === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 border border-gray-700 text-gray-300 hover:bg-red-900/40 hover:text-red-400 hover:border-red-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Xóa
-          </button>
-
-          <button
-            onClick={() => setTunerOpen((v) => !v)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-              tunerOpen
-                ? "bg-cyan-800/50 border-cyan-600/60 text-cyan-300"
-                : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700",
-            )}
-          >
-            <Mic className="w-4 h-4" />
-            Chỉnh dây
-          </button>
-
           <button
             onClick={() => setMuted((v) => !v)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ml-auto border",
-              muted
-                ? "bg-red-900/40 border-red-800/60 text-red-400"
-                : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700",
+              "sm:hidden w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
+              muted ? "bg-red-900/50 text-red-400" : "bg-gray-800 text-gray-400 hover:text-white",
             )}
-            title={muted ? "Bật âm thanh" : "Tắt âm thanh"}
           >
-            {muted ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4" />
-            )}
+            {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
           </button>
         </div>
 
-        {/* ── Note display panel ── */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 mb-5 overflow-hidden">
+        {/* Desktop controls bar */}
+        <div className="hidden sm:flex flex-wrap items-center gap-2 mb-5">
+          <button
+            onClick={() => setShowNames((v) => !v)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border",
+              showNames
+                ? "bg-purple-600 border-purple-500 text-white"
+                : "bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700",
+            )}
+          >
+            {showNames ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {"Hiển thị nốt"}
+          </button>
+          <button
+            onClick={() => setUseVi((v) => !v)}
+            className="px-4 py-2 rounded-xl text-sm font-medium bg-gray-800/80 border border-gray-700 text-gray-300 hover:bg-gray-700 transition-all"
+          >
+            {useVi ? "Tiếng Việt" : "English"}
+          </button>
+          <button
+            onClick={playAll}
+            disabled={marked.size === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-green-700 text-white hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <Play className="w-4 h-4" />
+            {"Chơi"}{marked.size > 0 ? " (" + String(marked.size) + ")" : ""}
+          </button>
+          <button
+            onClick={clearAll}
+            disabled={marked.size === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-gray-800/80 border border-gray-700 text-gray-300 hover:bg-red-900/40 hover:text-red-400 hover:border-red-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {"Xóa"}
+          </button>
+          <button
+            onClick={() => setTunerOpen((v) => !v)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border",
+              tunerOpen
+                ? "bg-cyan-800/50 border-cyan-600/60 text-cyan-300"
+                : "bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700",
+            )}
+          >
+            <Mic className="w-4 h-4" />
+            {"Chỉnh dây"}
+          </button>
+          <button
+            onClick={() => setMuted((v) => !v)}
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ml-auto border",
+              muted
+                ? "bg-red-900/40 border-red-800/60 text-red-400"
+                : "bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700",
+            )}
+          >
+            {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        </div>
+
+        {/* Note display panel */}
+        <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 overflow-hidden">
           {lastNote ? (
-            <div className="flex items-center gap-5 px-5 py-4">
-              {/* Note name */}
-              <div className="flex flex-col items-center justify-center w-20 flex-shrink-0">
-                <span className="text-4xl font-extrabold text-white leading-none tracking-tight">
-                  {lastNote.en}
-                </span>
-                <span className="text-purple-400 text-base font-semibold mt-1">
-                  {lastNote.vi}
-                </span>
-              </div>
-
-              {/* Divider */}
-              <div className="w-px self-stretch bg-gray-700" />
-
-              {/* Position info */}
-              <div className="flex flex-col gap-0.5 min-w-[90px]">
-                <span className="text-gray-400 text-xs">
-                  Dây{" "}
-                  <span className="font-bold text-white">
-                    {useVi
-                      ? OPEN_LABELS_VI[lastNote.si]
-                      : OPEN_LABELS_EN[lastNote.si]}
+            <div className="flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-3 sm:py-4">
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex flex-col items-center min-w-[40px]">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-white leading-none tracking-tight">{lastNote.en}</span>
+                  <span className="text-purple-400 text-sm font-semibold mt-0.5">{lastNote.vi}</span>
+                </div>
+                <div className="h-10 w-px bg-gray-700 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-gray-400 text-xs">
+                    {"Dây"}{" "}<span className="font-bold text-white">{useVi ? OPEN_LABELS_VI[lastNote.si] : OPEN_LABELS_EN[lastNote.si]}</span>
                   </span>
-                </span>
-                <span className="text-gray-400 text-xs">
-                  Phím{" "}
-                  <span className="font-bold text-white">{lastNote.fret}</span>
-                </span>
-                <span className="text-gray-600 text-[10px] mt-0.5">
-                  MIDI {lastNote.midi}
-                </span>
+                  <span className="text-gray-400 text-xs">
+                    {"Phím"}{" "}<span className="font-bold text-white">{lastNote.fret}</span>
+                  </span>
+                  <span className="text-gray-600 text-[10px]">MIDI {lastNote.midi}</span>
+                </div>
               </div>
-
-              {/* Chromatic scale strip */}
               <div className="hidden sm:flex flex-wrap gap-1 ml-auto">
                 {NOTE_EN.map((n, i) => (
                   <div
                     key={n}
                     className={cn(
-                      "w-8 h-8 rounded flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
+                      "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
                       i === noteClass(lastNote.midi)
                         ? "bg-purple-600 text-white shadow shadow-purple-900/60 ring-2 ring-purple-400/50"
-                        : n.includes("#")
-                          ? "bg-gray-800 text-gray-600"
-                          : "bg-gray-800/60 text-gray-500",
+                        : n.includes("#") ? "bg-gray-800 text-gray-600" : "bg-gray-800/60 text-gray-500",
                     )}
                   >
                     {useVi ? NOTE_VI[i] : n}
@@ -629,205 +602,145 @@ export default function GuitarPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center py-5 text-gray-600 text-sm select-none">
-              Nhấn vào ô trên cần đàn để xem thông tin nốt nhạc
+            <div className="flex items-center justify-center py-4 text-gray-600 text-sm select-none">
+              {"Nhấn vào cần đàn để xem thông tin nốt nhạc"}
             </div>
           )}
         </div>
 
-        {/* ── Tuner panel ── */}
+        {/* Tuner panel */}
         {tunerOpen && (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 mb-5 overflow-hidden">
-            {/* Panel header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800">
+          <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 overflow-hidden">
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-800">
               <div className="flex items-center gap-2 text-sm">
                 {tunerActive ? (
                   <span className="flex items-center gap-2 text-green-400 font-medium">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    Đang nghe...
+                    {"Đang nghe..."}
                   </span>
                 ) : (
-                  <span className="text-gray-500">
-                    Microphone chưa kích hoạt
-                  </span>
+                  <span className="text-gray-500">{"Microphone chưa kích hoạt"}</span>
                 )}
               </div>
               <button
                 onClick={tunerActive ? stopTuner : startTuner}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all",
+                  "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95",
                   tunerActive
                     ? "bg-red-900/40 border border-red-800/60 text-red-400 hover:bg-red-900/60"
                     : "bg-purple-700 text-white hover:bg-purple-600",
                 )}
               >
-                {tunerActive ? (
-                  <>
-                    <MicOff className="w-3.5 h-3.5 mr-1" />
-                    Dừng
-                  </>
-                ) : (
-                  <>
-                    <Mic className="w-3.5 h-3.5 mr-1" />
-                    Bắt đầu
-                  </>
-                )}
+                {tunerActive
+                  ? <><MicOff className="w-3.5 h-3.5" />{"Dừng"}</>
+                  : <><Mic className="w-3.5 h-3.5" />{"Bắt đầu"}</>}
               </button>
             </div>
-
-            {/* Panel body */}
-            <div className="px-5 py-5">
-              {tunerFreq > 0 ? (
-                (() => {
-                  const roundedMidi = Math.round(tunerMidi);
-                  const cents = (tunerMidi - roundedMidi) * 100;
-                  const inTune = Math.abs(cents) <= 5;
-                  const close = Math.abs(cents) <= 20;
-                  const nc = ((roundedMidi % 12) + 12) % 12;
-                  const noteEn = NOTE_EN[nc];
-                  const noteVi = NOTE_VI[nc];
-                  let targetSi = 0;
-                  let bestDist = Infinity;
-                  OPEN_MIDI.forEach((m, si) => {
-                    const d = Math.abs(tunerMidi - m);
-                    if (d < bestDist) {
-                      bestDist = d;
-                      targetSi = si;
-                    }
-                  });
-                  const needlePos = Math.min(
-                    Math.max((cents + 50) / 100, 0),
-                    1,
-                  );
-                  return (
-                    <div className="flex flex-col items-center gap-5">
-                      {/* Note circle + info */}
-                      <div className="flex items-center gap-6 flex-wrap justify-center">
-                        <div
-                          className={cn(
+            <div className="px-4 sm:px-5 py-5">
+              {tunerFreq > 0
+                ? (() => {
+                    const roundedMidi = Math.round(tunerMidi);
+                    const cents = (tunerMidi - roundedMidi) * 100;
+                    const inTune = Math.abs(cents) <= 5;
+                    const close = Math.abs(cents) <= 20;
+                    const nc = ((roundedMidi % 12) + 12) % 12;
+                    const noteEn = NOTE_EN[nc];
+                    const noteVi = NOTE_VI[nc];
+                    let targetSi = 0;
+                    let bestDist = Infinity;
+                    OPEN_MIDI.forEach((m, si) => {
+                      const d = Math.abs(tunerMidi - m);
+                      if (d < bestDist) { bestDist = d; targetSi = si; }
+                    });
+                    const needlePos = Math.min(Math.max((cents + 50) / 100, 0), 1);
+                    const centsRounded = Math.round(cents);
+                    const centsLabel = centsRounded >= 0
+                      ? ("+" + centsRounded + " cents — Hơi cao")
+                      : (String(centsRounded) + " cents — Hơi thấp");
+                    return (
+                      <div className="flex flex-col items-center gap-5">
+                        <div className="flex items-center gap-6 flex-wrap justify-center">
+                          <div className={cn(
                             "w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center transition-all",
                             inTune
                               ? "border-green-500 bg-green-900/20 shadow-lg shadow-green-900/30"
                               : close
                                 ? "border-yellow-500 bg-yellow-900/15"
                                 : "border-red-500/60 bg-red-900/10",
-                          )}
-                        >
-                          <span className="text-3xl font-extrabold text-white leading-none">
-                            {noteEn}
-                          </span>
-                          <span className="text-xs text-gray-400 mt-0.5">
-                            {noteVi}
-                          </span>
+                          )}>
+                            <span className="text-3xl font-extrabold text-white leading-none">{noteEn}</span>
+                            <span className="text-xs text-gray-400 mt-0.5">{noteVi}</span>
+                          </div>
+                          <div className="flex flex-col gap-1.5 text-sm">
+                            <div className="text-gray-400">
+                              {"Tần số: "}<span className="text-white font-mono font-semibold">{tunerFreq.toFixed(1)} Hz</span>
+                            </div>
+                            <div className="text-gray-400">
+                              {"Dây gần nhất: "}<span className="text-purple-300 font-semibold">{OPEN_LABELS_EN[targetSi]} {"—"} {OPEN_LABELS_VI[targetSi]}</span>
+                            </div>
+                            <div className={cn("font-semibold", inTune ? "text-green-400" : close ? "text-yellow-400" : "text-red-400")}>
+                              {inTune ? "✓ Đúng chuẩn" : centsLabel}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-1.5 text-sm">
-                          <div className="text-gray-400">
-                            Tần số:{" "}
-                            <span className="text-white font-mono font-semibold">
-                              {tunerFreq.toFixed(1)} Hz
-                            </span>
+                        <div className="w-full max-w-xs">
+                          <div className="flex justify-between text-[10px] text-gray-600 mb-1 px-1">
+                            <span>{"♭ Thấp"}</span><span>{"Chuẩn"}</span><span>{"Cao ♯"}</span>
                           </div>
-                          <div className="text-gray-400">
-                            Dây gần nhất:{" "}
-                            <span className="text-purple-300 font-semibold">
-                              {OPEN_LABELS_EN[targetSi]} —{" "}
-                              {OPEN_LABELS_VI[targetSi]}
-                            </span>
+                          <div className="relative h-5 rounded-full overflow-hidden bg-gray-800">
+                            <div
+                              className="absolute inset-0"
+                              style={{ background: "linear-gradient(to right, #dc2626 0%, #fbbf24 28%, #16a34a 42%, #16a34a 58%, #fbbf24 72%, #dc2626 100%)" }}
+                            />
+                            <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/50" />
+                            <div
+                              className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-gray-500 transition-[left] duration-75"
+                              style={{ left: "calc(" + String(needlePos * 100) + "% - 10px)" }}
+                            />
                           </div>
-                          <div
-                            className={cn(
-                              "font-semibold",
-                              inTune
-                                ? "text-green-400"
-                                : close
-                                  ? "text-yellow-400"
-                                  : "text-red-400",
-                            )}
-                          >
-                            {inTune
-                              ? "✓ Đúng chuẩn"
-                              : cents > 0
-                                ? `+${Math.round(cents)} cents — Hơi cao`
-                                : `${Math.round(cents)} cents — Hơi thấp`}
+                          <div className="text-center text-[10px] text-gray-500 mt-1.5">
+                            {centsRounded >= 0 ? "+" + String(centsRounded) : String(centsRounded)} cents
                           </div>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap justify-center">
+                          {[5, 4, 3, 2, 1, 0].map((si) => (
+                            <div
+                              key={si}
+                              className={cn(
+                                "flex flex-col items-center px-3 py-2 rounded-xl text-xs transition-all",
+                                si === targetSi
+                                  ? "bg-purple-600/80 text-white shadow shadow-purple-900/40"
+                                  : "bg-gray-800/50 text-gray-600",
+                              )}
+                            >
+                              <span className="font-bold text-[11px]">{OPEN_LABELS_EN[si]}</span>
+                              <span className="text-[9px] opacity-70">{OPEN_LABELS_VI[si]}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-
-                      {/* Cents meter */}
-                      <div className="w-full max-w-xs">
-                        <div className="flex justify-between text-[10px] text-gray-600 mb-1 px-1">
-                          <span>♭ Thấp</span>
-                          <span>Chuẩn</span>
-                          <span>Cao ♯</span>
-                        </div>
-                        <div className="relative h-5 rounded-full overflow-hidden bg-gray-800">
-                          <div
-                            className="absolute inset-0"
-                            style={{
-                              background:
-                                "linear-gradient(to right, #dc2626 0%, #fbbf24 28%, #16a34a 42%, #16a34a 58%, #fbbf24 72%, #dc2626 100%)",
-                            }}
-                          />
-                          <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/50" />
-                          <div
-                            className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-gray-500 transition-[left] duration-75"
-                            style={{ left: `calc(${needlePos * 100}% - 10px)` }}
-                          />
-                        </div>
-                        <div className="text-center text-[10px] text-gray-500 mt-1.5">
-                          {cents >= 0
-                            ? `+${Math.round(cents)}`
-                            : Math.round(cents)}{" "}
-                          cents
-                        </div>
-                      </div>
-
-                      {/* Guitar string targets */}
-                      <div className="flex gap-1.5 flex-wrap justify-center">
-                        {[5, 4, 3, 2, 1, 0].map((si) => (
-                          <div
-                            key={si}
-                            className={cn(
-                              "flex flex-col items-center px-3 py-1.5 rounded-lg text-xs transition-all",
-                              si === targetSi
-                                ? "bg-purple-600/80 text-white shadow shadow-purple-900/40"
-                                : "bg-gray-800/50 text-gray-600",
-                            )}
-                          >
-                            <span className="font-bold text-[11px]">
-                              {OPEN_LABELS_EN[si]}
-                            </span>
-                            <span className="text-[9px] opacity-70">
-                              {OPEN_LABELS_VI[si]}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                    );
+                  })()
+                : (
+                  <div className="flex flex-col items-center gap-3 py-3">
+                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center">
+                      <Mic className="w-8 h-8 text-gray-700" />
                     </div>
-                  );
-                })()
-              ) : (
-                <div className="flex flex-col items-center gap-3 py-3">
-                  <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-700 flex items-center justify-center">
-                    <Mic className="w-8 h-8 text-gray-700" />
+                    <p className="text-gray-600 text-sm text-center leading-relaxed">
+                      {tunerActive
+                        ? "Đang chờ tín hiệu âm thanh từ micro..."
+                        : "Nhấn Bắt đầu và cho phép truy cập microphone để chỉnh dây đàn"}
+                    </p>
                   </div>
-                  <p className="text-gray-600 text-sm text-center leading-relaxed">
-                    {tunerActive
-                      ? "Đang chờ tín hiệu âm thanh từ micro..."
-                      : "Nhấn Bắt đầu và cho phép truy cập microphone để chỉnh dây đàn"}
-                  </p>
-                </div>
-              )}
+                )}
             </div>
-
-            {/* Volume signal bar */}
             {tunerActive && (
-              <div className="px-5 pb-4 flex items-center gap-2 text-xs text-gray-600">
+              <div className="px-4 sm:px-5 pb-4 flex items-center gap-2 text-xs text-gray-600">
                 <Mic className="w-3 h-3 flex-shrink-0" />
                 <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-green-700 to-green-400 rounded-full transition-all duration-75"
-                    style={{ width: `${tunerVolume * 100}%` }}
+                    style={{ width: String(tunerVolume * 100) + "%" }}
                   />
                 </div>
               </div>
@@ -837,209 +750,239 @@ export default function GuitarPage() {
 
         {/* Active chord badge */}
         {activeChord && (
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-gray-500 text-xs">Đang xem hợp âm:</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-gray-500 text-xs">{"Đang xem:"}</span>
             <span className="px-3 py-0.5 rounded-full bg-purple-600/20 border border-purple-500/40 text-purple-300 text-sm font-bold">
               {activeChord}
             </span>
           </div>
         )}
 
-        {/* ── Fretboard ── */}
-        <div className="bg-[#1a1005] rounded-2xl p-5 shadow-2xl overflow-x-auto mb-6 border border-amber-900/30">
-          <div className="min-w-[760px]">
-            {/* Fret number header */}
-            <div className="flex items-center mb-1 select-none">
-              <div className="w-14 flex-shrink-0" />
-              {/* Open string column label */}
-              <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-700/60 font-mono">
-                0
+        {/* Fretboard */}
+        <div className="rounded-2xl overflow-hidden mb-5 border border-amber-900/30 shadow-2xl shadow-black/50">
+          <div className="bg-[#1a1005] px-2 sm:px-5 py-3 sm:py-5 overflow-x-auto">
+            <div className="min-w-[600px]">
+              <div className="flex items-center mb-1 select-none">
+                <div className="w-11 sm:w-14 flex-shrink-0" />
+                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-700/60 font-mono">0</div>
+                <div className="w-3 flex-shrink-0" />
+                {Array.from({ length: NUM_FRETS }, (_, i) => (
+                  <div key={i} className="flex-1 text-center text-[10px] text-amber-700/60 font-mono">{i + 1}</div>
+                ))}
               </div>
-              {/* Nut gap */}
-              <div className="w-3 flex-shrink-0" />
-              {Array.from({ length: NUM_FRETS }, (_, i) => (
-                <div
-                  key={i}
-                  className="flex-1 text-center text-[10px] text-amber-700/60 font-mono"
-                >
-                  {i + 1}
-                </div>
-              ))}
-            </div>
-
-            {/* String rows */}
-            {displayOrder.map((si) => {
-              const openMidi = OPEN_MIDI[si];
-              const isWound = si <= 2; // low 3 strings are wound
-
-              return (
-                <div key={si} className="flex items-center">
-                  {/* String label */}
-                  <div className="w-14 flex-shrink-0 flex items-center justify-end pr-3 gap-1.5 select-none">
-                    <span
-                      className={cn(
-                        "text-xs font-mono font-semibold",
-                        isWound ? "text-amber-400/80" : "text-amber-200/70",
-                      )}
-                    >
-                      {useVi ? OPEN_LABELS_VI[si] : OPEN_LABELS_EN[si]}
-                    </span>
-                  </div>
-
-                  {/* Open string (fret 0) */}
-                  <FretCell
-                    midi={openMidi}
-                    isMarked={marked.has(mk(si, 0))}
-                    showNames={showNames}
-                    vi={useVi}
-                    thickness={STRING_THICKNESS[si]}
-                    isOpen
-                    isWound={isWound}
-                    onClick={() => toggleMark(si, 0)}
-                  />
-
-                  {/* Nut */}
-                  <div className="w-3 flex-shrink-0 self-stretch bg-[#e8dcc0]/80 rounded-sm" />
-
-                  {/* Frets 1 – NUM_FRETS */}
-                  {Array.from({ length: NUM_FRETS }, (_, fi) => {
-                    const fret = fi + 1;
-                    return (
-                      <FretCell
-                        key={fret}
-                        midi={openMidi + fret}
-                        isMarked={marked.has(mk(si, fret))}
-                        showNames={showNames}
-                        vi={useVi}
-                        thickness={STRING_THICKNESS[si]}
-                        isOpen={false}
-                        isWound={isWound}
-                        onClick={() => toggleMark(si, fret)}
-                      />
-                    );
-                  })}
-                </div>
-              );
-            })}
-
-            {/* Position dots row */}
-            <div className="flex items-center mt-1 select-none">
-              <div className="w-14 flex-shrink-0" />
-              <div className="w-10 flex-shrink-0" />
-              <div className="w-3 flex-shrink-0" />
-              {Array.from({ length: NUM_FRETS }, (_, i) => {
-                const f = i + 1;
+              {displayOrder.map((si) => {
+                const openMidi = OPEN_MIDI[si];
+                const isWound = si <= 2;
                 return (
-                  <div
-                    key={f}
-                    className="flex-1 flex items-center justify-center py-1.5"
-                  >
-                    {FRET_DOTS.has(f) && (
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-amber-700/55" />
-                        {f === DOUBLE_DOT_FRET && (
-                          <div className="w-2 h-2 rounded-full bg-amber-700/55" />
-                        )}
-                      </div>
-                    )}
+                  <div key={si} className="flex items-center">
+                    <div className="w-11 sm:w-14 flex-shrink-0 flex items-center justify-end pr-2 sm:pr-3 select-none">
+                      <span className={cn("text-xs font-mono font-semibold", isWound ? "text-amber-400/80" : "text-amber-200/70")}>
+                        {useVi ? OPEN_LABELS_VI[si] : OPEN_LABELS_EN[si]}
+                      </span>
+                    </div>
+                    <FretCell
+                      midi={openMidi}
+                      isMarked={marked.has(mk(si, 0))}
+                      showNames={showNames}
+                      vi={useVi}
+                      thickness={STRING_THICKNESS[si]}
+                      isOpen
+                      isWound={isWound}
+                      onClick={() => toggleMark(si, 0)}
+                    />
+                    <div className="w-3 flex-shrink-0 self-stretch bg-[#e8dcc0]/80 rounded-sm" />
+                    {Array.from({ length: NUM_FRETS }, (_, fi) => {
+                      const fret = fi + 1;
+                      return (
+                        <FretCell
+                          key={fret}
+                          midi={openMidi + fret}
+                          isMarked={marked.has(mk(si, fret))}
+                          showNames={showNames}
+                          vi={useVi}
+                          thickness={STRING_THICKNESS[si]}
+                          isOpen={false}
+                          isWound={isWound}
+                          onClick={() => toggleMark(si, fret)}
+                        />
+                      );
+                    })}
                   </div>
                 );
               })}
+              <div className="flex items-center mt-1 select-none">
+                <div className="w-11 sm:w-14 flex-shrink-0" />
+                <div className="w-10 flex-shrink-0" />
+                <div className="w-3 flex-shrink-0" />
+                {Array.from({ length: NUM_FRETS }, (_, i) => {
+                  const f = i + 1;
+                  return (
+                    <div key={f} className="flex-1 flex items-center justify-center py-1.5">
+                      {FRET_DOTS.has(f) && (
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-amber-700/55" />
+                          {f === DOUBLE_DOT_FRET && <div className="w-2 h-2 rounded-full bg-amber-700/55" />}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ── Open string tuning reference ── */}
-        <div className="bg-gray-900 rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-            Dây đàn chuẩn
-            <span className="text-xs text-gray-500 font-normal">
-              Nhấn để nghe cao độ chuẩn
-            </span>
+        {/* Chord library (tabbed) */}
+        <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 overflow-hidden">
+          <div className="flex border-b border-gray-800">
+            {CHORD_GROUPS.map((group, idx) => (
+              <button
+                key={group.label}
+                onClick={() => setActiveChordGroup(idx)}
+                className={cn(
+                  "flex-1 py-3 text-sm font-semibold transition-all",
+                  activeChordGroup === idx
+                    ? "text-white border-b-2 border-purple-500 bg-purple-600/10"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/40",
+                )}
+              >
+                {group.label === "7" ? "Hợp âm 7" : "Hợp âm " + group.label}
+              </button>
+            ))}
+          </div>
+          <div className="p-4">
+            <div className="flex flex-wrap gap-2">
+              {CHORD_GROUPS[activeChordGroup].names.filter((n) => CHORDS[n]).map((name) => (
+                <button
+                  key={name}
+                  onClick={() => selectChord(name)}
+                  className={cn(
+                    "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
+                    activeChord === name
+                      ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
+                      : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
+                  )}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Open string reference */}
+        <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 p-4">
+          <h2 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+            {"Dây đàn chuẩn"}
+            <span className="text-xs text-gray-600 font-normal">{"Nhấn để nghe"}</span>
           </h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-6 gap-2">
             {[0, 1, 2, 3, 4, 5].map((si) => (
               <button
                 key={si}
                 onClick={() => playNote(si, 0)}
-                className="flex flex-col items-center gap-1 px-5 py-3 rounded-xl bg-gray-800 hover:bg-purple-900/40 border border-gray-700 hover:border-purple-600/60 transition-all group"
+                className="flex flex-col items-center gap-1 py-3 rounded-xl bg-gray-800 hover:bg-purple-900/40 border border-gray-700 hover:border-purple-600/60 transition-all active:scale-95 group"
               >
-                <span className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">
-                  {OPEN_LABELS_EN[si]}
-                </span>
-                <span className="text-xs text-gray-500 group-hover:text-purple-400/70 transition-colors">
-                  {OPEN_LABELS_VI[si]}
-                </span>
+                <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">{OPEN_LABELS_EN[si]}</span>
+                <span className="text-[10px] text-gray-500 group-hover:text-purple-400/70 transition-colors">{OPEN_LABELS_VI[si]}</span>
                 <div
-                  className={cn(
-                    "w-full rounded-full bg-amber-600/40 mt-1",
-                    si <= 2 ? "bg-amber-600/50" : "bg-gray-400/30",
-                  )}
-                  style={{ height: `${STRING_THICKNESS[si]}px` }}
+                  className={cn("w-3/4 rounded-full mt-0.5", si <= 2 ? "bg-amber-600/50" : "bg-gray-400/30")}
+                  style={{ height: String(STRING_THICKNESS[si]) + "px" }}
                 />
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── Chord library ── */}
-        <div className="bg-gray-900 rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            Hợp âm phổ biến
-            <span className="text-xs text-gray-500 font-normal">
-              Nhấn để áp dụng lên cần đàn
-            </span>
-          </h2>
-          <div className="space-y-4">
-            {CHORD_GROUPS.map((group) => (
-              <div key={group.label}>
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                  {group.label}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {group.names
-                    .filter((n) => CHORDS[n])
-                    .map((name) => (
-                      <button
-                        key={name}
-                        onClick={() => selectChord(name)}
-                        className={cn(
-                          "px-4 py-2 rounded-lg text-sm font-bold transition-all border",
-                          activeChord === name
-                            ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/40"
-                            : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-500",
-                        )}
-                      >
-                        {name}
-                      </button>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Instructions (collapsible) */}
+        <div className="bg-gray-900/40 rounded-2xl border border-gray-800 overflow-hidden mb-4">
+          <button
+            onClick={() => setShowInstructions((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-400 hover:text-gray-200 transition-colors"
+          >
+            <span>{"Hướng dẫn sử dụng"}</span>
+            <span className={cn("text-gray-600 transition-transform duration-200", showInstructions ? "rotate-180" : "")}>{"▾"}</span>
+          </button>
+          {showInstructions && (
+            <div className="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8 text-xs text-gray-500 border-t border-gray-800 pt-3">
+              <div>{"• Nhấn vào ô trên cần đàn để phát âm và đánh dấu nốt"}</div>
+              <div>{"• Nhấn lại nốt đã đánh dấu để bỏ đánh dấu"}</div>
+              <div>{"• Bật Hiển thị nốt để xem tên tất cả các nốt"}</div>
+              <div>{"• Chuyển đổi Tiếng Việt / English cho tên nốt nhạc"}</div>
+              <div>{"• Chọn hợp âm để hiển thị vị trí ngón tay"}</div>
+              <div>{"• Nhấn Chơi để phát tất cả nốt đã chọn"}</div>
+              <div>{"• Phím số 1 → 6 để gảy dây mở từ dây trầm đến cao"}</div>
+              <div>{"• Nhấn dây đàn chuẩn để nghe cao độ tham chiếu"}</div>
+            </div>
+          )}
         </div>
 
-        {/* ── Instructions ── */}
-        <div className="bg-gray-900/60 rounded-xl p-5 border border-gray-800">
-          <h2 className="text-sm font-bold text-white mb-3">
-            Hướng dẫn sử dụng
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8 text-xs text-gray-400">
-            <div>• Nhấn vào ô trên cần đàn để phát âm và đánh dấu nốt</div>
-            <div>• Nhấn lại nốt đã đánh dấu để bỏ đánh dấu</div>
-            <div>
-              • Bật <strong className="text-gray-300">Hiển thị nốt</strong> để
-              xem tên tất cả các nốt
-            </div>
-            <div>• Chuyển đổi Tiếng Việt / English cho tên nốt nhạc</div>
-            <div>• Chọn hợp âm bên dưới để hiển thị vị trí ngón tay</div>
-            <div>
-              • Nhấn <strong className="text-gray-300">Chơi</strong> để phát tất
-              cả nốt đã chọn
-            </div>
-            <div>• Phím số 1 → 6 để gảy dây mở từ dây trầm đến cao</div>
-            <div>• Nhấn dây đàn chuẩn để nghe cao độ tham chiếu</div>
-          </div>
+      </div>
+
+      {/* Mobile bottom toolbar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-gray-900/95 backdrop-blur-md border-t border-gray-800/80">
+        <div className="flex items-stretch divide-x divide-gray-800/60">
+          <button
+            onClick={() => setShowNames((v) => !v)}
+            className={cn(
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              showNames ? "text-purple-400 bg-purple-900/20" : "text-gray-500 active:bg-gray-800/60",
+            )}
+          >
+            {showNames ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            <span className="text-[9px] font-medium">{"Nốt"}</span>
+          </button>
+          <button
+            onClick={() => setUseVi((v) => !v)}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-gray-500 active:bg-gray-800/60 transition-all"
+          >
+            <span className="text-sm font-bold leading-none">{useVi ? "Vi" : "En"}</span>
+            <span className="text-[9px] font-medium mt-0.5">{"Ngôn ngữ"}</span>
+          </button>
+          <button
+            onClick={playAll}
+            disabled={marked.size === 0}
+            className={cn(
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              marked.size > 0 ? "text-green-400 active:bg-green-900/20" : "text-gray-700",
+            )}
+          >
+            <Play className="w-5 h-5" />
+            <span className="text-[9px] font-medium">
+              {marked.size > 0 ? "Chơi (" + String(marked.size) + ")" : "Chơi"}
+            </span>
+          </button>
+          <button
+            onClick={clearAll}
+            disabled={marked.size === 0}
+            className={cn(
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              marked.size > 0 ? "text-red-400 active:bg-red-900/20" : "text-gray-700",
+            )}
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span className="text-[9px] font-medium">{"Xóa"}</span>
+          </button>
+          <button
+            onClick={() => setTunerOpen((v) => !v)}
+            className={cn(
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              tunerOpen ? "text-cyan-400 bg-cyan-900/20" : "text-gray-500 active:bg-gray-800/60",
+            )}
+          >
+            <Mic className="w-5 h-5" />
+            <span className="text-[9px] font-medium">Tuner</span>
+          </button>
+          <button
+            onClick={() => setMuted((v) => !v)}
+            className={cn(
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              muted ? "text-red-400 bg-red-900/20" : "text-gray-500 active:bg-gray-800/60",
+            )}
+          >
+            {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            <span className="text-[9px] font-medium">{"Âm thanh"}</span>
+          </button>
         </div>
       </div>
     </div>
