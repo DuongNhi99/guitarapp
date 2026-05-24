@@ -414,6 +414,7 @@ export default function GuitarPage() {
 
   async function startTuner() {
     try {
+      // iOS Safari requires getUserMedia before creating AudioContext
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
@@ -424,7 +425,14 @@ export default function GuitarPage() {
       });
       micStreamRef.current = stream;
 
-      const ctx = new AudioContext();
+      // webkitAudioContext fallback for older iOS Safari
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      const ctx = new AudioCtx();
+      // iOS suspends AudioContext until resumed inside a user gesture
+      if (ctx.state === "suspended") await ctx.resume();
       tunerCtxRef.current = ctx;
 
       const analyser = ctx.createAnalyser();
@@ -435,10 +443,14 @@ export default function GuitarPage() {
       ctx.createMediaStreamSource(stream).connect(analyser);
       setTunerActive(true);
       tunerRafRef.current = requestAnimationFrame(runTunerLoop);
-    } catch {
-      alert(
-        "Không thể truy cập microphone. Vui lòng cho phép quyền truy cập micro trong trình duyệt.",
-      );
+    } catch (err) {
+      const msg =
+        err instanceof DOMException && err.name === "NotAllowedError"
+          ? "Quyền truy cập microphone bị từ chối. Vui lòng cho phép micro trong cài đặt trình duyệt."
+          : err instanceof DOMException && err.name === "NotFoundError"
+            ? "Không tìm thấy microphone trên thiết bị này."
+            : "Không thể truy cập microphone. Vui lòng cho phép quyền truy cập micro trong trình duyệt.";
+      alert(msg);
     }
   }
 

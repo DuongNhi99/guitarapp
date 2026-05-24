@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
+import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import HomePage from "./pages/HomePage";
 import SongListPage from "./pages/SongListPage";
 import SongDetailPage from "./pages/SongDetailPage";
@@ -18,6 +19,7 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <PwaInstallPrompt />
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
