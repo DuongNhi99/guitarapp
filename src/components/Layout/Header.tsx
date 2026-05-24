@@ -51,7 +51,7 @@ export default function Header() {
               <Guitar className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-white text-lg hidden sm:block">
-              Hợp Âm <span className="text-purple-400">Chuẩn</span>
+              Abba<span className="text-purple-400">guitar</span>
             </span>
           </Link>
 

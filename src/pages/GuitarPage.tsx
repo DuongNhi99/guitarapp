@@ -98,7 +98,10 @@ function pluck(freq: number, ctx: AudioContext) {
 
 // ─── Pitch detection (Normalised Square Difference – McLeod Pitch Method) ─────
 
-function autoCorrelate(buf: Float32Array<ArrayBuffer>, sampleRate: number): number {
+function autoCorrelate(
+  buf: Float32Array<ArrayBuffer>,
+  sampleRate: number,
+): number {
   const n = buf.length;
 
   // Silence gate

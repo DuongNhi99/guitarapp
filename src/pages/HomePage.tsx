@@ -32,7 +32,7 @@ export default function HomePage() {
             Nền tảng hợp âm #1 Việt Nam
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-4">
-            Hợp âm chuẩn
+            Abbaguitar
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
               mọi bài hát
