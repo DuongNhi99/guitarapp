@@ -261,3 +261,106 @@ html.light .divide-gray-800 > * + * {
 html.light .divide-gray-700 > * + * {
   border-color: #d1d5db !important;
 }
+
+/* ── Purple opacity backgrounds ── */
+html.light .bg-purple-900\/50 {
+  background-color: rgba(124, 58, 237, 0.08) !important;
+}
+html.light .bg-purple-900\/40 {
+  background-color: rgba(124, 58, 237, 0.07) !important;
+}
+html.light .bg-purple-900\/30 {
+  background-color: rgba(124, 58, 237, 0.08) !important;
+}
+html.light .bg-purple-900\/20 {
+  background-color: rgba(124, 58, 237, 0.06) !important;
+}
+html.light .bg-purple-900\/10 {
+  background-color: rgba(124, 58, 237, 0.04) !important;
+}
+html.light .bg-pink-900\/20 {
+  background-color: rgba(131, 24, 67, 0.04) !important;
+}
+html.light .bg-pink-600\/10 {
+  background-color: rgba(219, 39, 119, 0.04) !important;
+}
+html.light .bg-purple-600\/10 {
+  background-color: rgba(124, 58, 237, 0.04) !important;
+}
+
+/* ── Hero section gradient stops ── */
+html.light .from-purple-900\/40 {
+  --tw-gradient-from: rgba(124, 58, 237, 0.06) var(--tw-gradient-from-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+html.light .via-gray-900 {
+  --tw-gradient-via: #f4f5f7 var(--tw-gradient-via-position);
+  --tw-gradient-stops:
+    var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+html.light .to-pink-900\/20 {
+  --tw-gradient-to: rgba(131, 24, 67, 0.04) var(--tw-gradient-to-position);
+}
+
+/* ── Thumbnail card gradient ── */
+html.light .from-purple-600\/30 {
+  --tw-gradient-from: rgba(124, 58, 237, 0.12) var(--tw-gradient-from-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+html.light .to-pink-600\/30 {
+  --tw-gradient-to: rgba(219, 39, 119, 0.1) var(--tw-gradient-to-position);
+}
+
+/* ── Purple text → readable dark purple on white ── */
+html.light .text-purple-300 {
+  color: #7c3aed !important;
+}
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+html.light .hover\:text-purple-300:hover {
+  color: #6d28d9 !important;
+}
+html.light .hover\:text-purple-400:hover {
+  color: #6d28d9 !important;
+}
+html.light .group:hover .group-hover\:text-purple-300 {
+  color: #6d28d9 !important;
+}
+
+/* ── Purple borders ── */
+html.light .border-purple-800\/30 {
+  border-color: rgba(107, 33, 168, 0.15) !important;
+}
+html.light .border-purple-700\/30 {
+  border-color: rgba(109, 40, 217, 0.15) !important;
+}
+html.light .border-purple-700\/50 {
+  border-color: rgba(109, 40, 217, 0.25) !important;
+}
+html.light .border-purple-500\/20 {
+  border-color: rgba(168, 85, 247, 0.18) !important;
+}
+html.light .hover\:border-purple-700\/50:hover {
+  border-color: rgba(109, 40, 217, 0.3) !important;
+}
+
+/* ── Hover purple background ── */
+html.light .hover\:bg-purple-900\/10:hover {
+  background-color: rgba(124, 58, 237, 0.05) !important;
+}
+
+/* ── Amber text (tuner/theme icon) ── */
+html.light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+/* ── section-title text in light ── */
+html.light .section-title {
+  color: #111827 !important;
+}
+
+/* ── Transparent placeholder in inputs ── */
+html.light input::placeholder {
+  color: #9ca3af !important;
+}

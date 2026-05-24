@@ -56,14 +56,15 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 ml-4">
+          <nav className="hidden lg:flex items-center gap-1 ml-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
                 className={cn(
                   "nav-link px-3 py-2 rounded-lg flex items-center gap-1.5",
-                  location.pathname.startsWith(item.href)
+                  location.pathname.startsWith(item.href) ||
+                    (item.href === "/guitar" && location.pathname === "/")
                     ? "text-purple-400 bg-purple-900/20 font-semibold"
                     : "hover:bg-gray-800",
                 )}
@@ -77,7 +78,7 @@ export default function Header() {
           {/* Search bar */}
           <form
             onSubmit={handleSearch}
-            className="flex-1 max-w-md mx-auto md:mx-0 md:ml-auto md:mr-4"
+            className="flex-1 max-w-md mx-auto lg:mx-0 lg:ml-auto lg:mr-4"
           >
             <div
               className={cn(
@@ -103,7 +104,7 @@ export default function Header() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="btn-ghost p-2 hidden md:flex"
+            className="btn-ghost p-2 hidden lg:flex"
             title={
               theme === "dark"
                 ? "Chuyển sang chế độ sáng"
@@ -119,7 +120,7 @@ export default function Header() {
           </button>
 
           {/* Auth buttons - desktop */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             <Link to="/login" className="btn-ghost text-sm py-1.5">
               Đăng nhập
             </Link>
@@ -131,7 +132,7 @@ export default function Header() {
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden btn-ghost p-2"
+            className="lg:hidden btn-ghost p-2"
             aria-label="Toggle menu"
           >
             {menuOpen ? (
@@ -145,7 +146,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-gray-900 border-t border-gray-800">
+        <div className="lg:hidden bg-gray-900 border-t border-gray-800">
           <nav className="px-4 py-3 space-y-1">
             {navItems.map((item) => (
               <Link
@@ -154,7 +155,8 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium",
-                  location.pathname.startsWith(item.href)
+                  location.pathname.startsWith(item.href) ||
+                    (item.href === "/guitar" && location.pathname === "/")
                     ? "text-purple-400 bg-purple-900/20"
                     : "text-gray-300 hover:bg-gray-800 hover:text-white",
                 )}

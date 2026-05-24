@@ -3,7 +3,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import PwaInstallPrompt from "./components/PwaInstallPrompt";
-import HomePage from "./pages/HomePage";
 import SongListPage from "./pages/SongListPage";
 import SongDetailPage from "./pages/SongDetailPage";
 import SearchPage from "./pages/SearchPage";
@@ -22,7 +21,7 @@ function App() {
         <PwaInstallPrompt />
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<GuitarPage />} />
             <Route path="/songs" element={<SongListPage />} />
             <Route path="/songs/:id/:slug" element={<SongDetailPage />} />
             <Route path="/songs/:id" element={<SongDetailPage />} />
@@ -37,7 +36,7 @@ function App() {
             <Route path="/sheets/:id" element={<SheetPreviewPage />} />
             <Route path="/guitar" element={<GuitarPage />} />
             {/* Fallback */}
-            <Route path="*" element={<HomePage />} />
+            <Route path="*" element={<GuitarPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
