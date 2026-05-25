@@ -864,14 +864,14 @@ export default function GuitarPage() {
             <div className="min-w-[600px]">
               <div className="flex items-center mb-1 select-none">
                 <div className="w-11 sm:w-14 flex-shrink-0" />
-                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-700/60 font-mono">
+                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-400/90 font-mono">
                   0
                 </div>
                 <div className="w-3 flex-shrink-0" />
                 {Array.from({ length: NUM_FRETS }, (_, i) => (
                   <div
                     key={i}
-                    className="flex-1 text-center text-[10px] text-amber-700/60 font-mono"
+                    className="flex-1 text-center text-[10px] text-amber-400/90 font-mono"
                   >
                     {i + 1}
                   </div>
@@ -935,9 +935,9 @@ export default function GuitarPage() {
                     >
                       {FRET_DOTS.has(f) && (
                         <div className="flex gap-1">
-                          <div className="w-2 h-2 rounded-full bg-amber-700/55" />
+                          <div className="w-2 h-2 rounded-full bg-amber-400/80" />
                           {f === DOUBLE_DOT_FRET && (
-                            <div className="w-2 h-2 rounded-full bg-amber-700/55" />
+                            <div className="w-2 h-2 rounded-full bg-amber-400/80" />
                           )}
                         </div>
                       )}

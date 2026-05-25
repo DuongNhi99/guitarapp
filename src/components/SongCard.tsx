@@ -14,6 +14,8 @@ export default function SongCard({
   variant = "default",
   rank,
 }: SongCardProps) {
+  const navigate = useNavigate();
+
   if (variant === "compact") {
     return (
       <Link
@@ -101,7 +103,6 @@ export default function SongCard({
   }
 
   // Default card
-  const navigate = useNavigate();
   return (
     <div
       onClick={() => navigate(`/songs/${song.id}/${song.slug}`)}
