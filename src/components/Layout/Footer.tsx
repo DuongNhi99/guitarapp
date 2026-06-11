@@ -100,7 +100,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} Abbaguitar. All rights reserved.
+            © {new Date().getFullYear()} Abbatutors. All rights reserved.
           </p>
           <p className="text-gray-500 text-sm flex items-center gap-1">
             Made with{" "}

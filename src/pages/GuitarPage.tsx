@@ -179,12 +179,27 @@ const CHORDS: Record<string, number[]> = {
   Bm: [-1, 2, 4, 4, 3, 2],
   B7: [-1, 2, 1, 2, 0, 2],
   Dm7: [-1, -1, 0, 2, 1, 1],
+  "F#m": [2, 4, 4, 2, 2, 2],
+  Bb: [-1, 1, 3, 3, 3, 1],
+  "B°": [-1, 2, 3, 4, 3, -1],
+  "E°": [0, 1, 2, 0, -1, -1],
+  "F#°": [-1, -1, 4, 5, 4, 5],
 };
+
+const CANON_PROGRESSIONS = [
+  { key: "Am", chords: ["Am", "Dm", "G", "C", "F", "B°", "E7", "Am"] },
+  { key: "C",  chords: ["C", "F", "B°", "Em", "Am", "Dm", "G7", "C"] },
+  { key: "G",  chords: ["G", "C", "F#°", "Bm", "Em", "Am", "D7", "G"] },
+  { key: "Em", chords: ["Em", "Am", "D", "G", "C", "F#°", "B7", "Em"] },
+  { key: "F",  chords: ["F", "Bb", "E°", "Am", "Dm", "Gm", "C7", "F"] },
+  { key: "Dm", chords: ["Dm", "Gm", "C", "F", "Bb", "E°", "A7", "Dm"] },
+];
 
 const CHORD_GROUPS = [
   { label: "Trưởng", names: ["C", "D", "E", "F", "G", "A", "B"] },
   { label: "Thứ", names: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"] },
   { label: "7", names: ["C7", "D7", "E7", "G7", "A7", "B7", "Am7", "Dm7"] },
+  { label: "Canon", names: [] },
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -963,29 +978,57 @@ export default function GuitarPage() {
                     : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/40",
                 )}
               >
-                {group.label === "7" ? "Hợp âm 7" : "Hợp âm " + group.label}
+                {group.label === "7" ? "Hợp âm 7" : group.label === "Canon" ? "Canon" : "Hợp âm " + group.label}
               </button>
             ))}
           </div>
           <div className="p-4">
-            <div className="flex flex-wrap gap-2">
-              {CHORD_GROUPS[activeChordGroup].names
-                .filter((n) => CHORDS[n])
-                .map((name) => (
-                  <button
-                    key={name}
-                    onClick={() => selectChord(name)}
-                    className={cn(
-                      "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
-                      activeChord === name
-                        ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
-                    )}
-                  >
-                    {name}
-                  </button>
+            {CHORD_GROUPS[activeChordGroup].label === "Canon" ? (
+              <div className="flex flex-col gap-2">
+                {CANON_PROGRESSIONS.map(({ key, chords }) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-gray-500 w-8 flex-shrink-0 text-right pr-1">
+                      {key}
+                    </span>
+                    <div className="flex gap-1 overflow-x-auto pb-0.5">
+                      {chords.filter((n) => CHORDS[n]).map((name, i) => (
+                        <button
+                          key={`${key}-${i}`}
+                          onClick={() => selectChord(name)}
+                          className={cn(
+                            "px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 whitespace-nowrap flex-shrink-0 min-w-[36px] text-center",
+                            activeChord === name
+                              ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
+                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
+                          )}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-            </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {CHORD_GROUPS[activeChordGroup].names
+                  .filter((n) => CHORDS[n])
+                  .map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => selectChord(name)}
+                      className={cn(
+                        "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
+                        activeChord === name
+                          ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
+                          : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
+                      )}
+                    >
+                      {name}
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
 

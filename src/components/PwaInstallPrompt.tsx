@@ -70,7 +70,7 @@ export default function PwaInstallPrompt() {
             <Download className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">Cài Abbaguitar</p>
+            <p className="text-white font-semibold text-sm">Cài Abbatutors</p>
             {isIos ? (
               <p className="text-gray-400 text-xs mt-1 leading-relaxed">
                 Nhấn{" "}

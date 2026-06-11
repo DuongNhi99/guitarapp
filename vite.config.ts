@@ -4,6 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/guitarapp/",
   plugins: [
     react(),
     VitePWA({
@@ -14,15 +15,15 @@ export default defineConfig({
         "apple-touch-icon-180x180.png",
       ],
       manifest: {
-        name: "Abbaguitar",
-        short_name: "Abbaguitar",
+        name: "Abbatutors",
+        short_name: "Abbatutors",
         description: "Guitar chords, fretboard & chromatic tuner",
         theme_color: "#7c3aed",
         background_color: "#09090b",
         display: "standalone",
         orientation: "any",
-        start_url: "/",
-        scope: "/",
+        start_url: "/guitarapp/",
+        scope: "/guitarapp/",
         icons: [
           { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },

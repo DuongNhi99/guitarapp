@@ -74,7 +74,7 @@ export function printSheetMusic(song: Song, transpose: number, capo: number) {
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>${song.title} – ${song.artist.name} | Abbaguitar</title>
+  <title>${song.title} – ${song.artist.name} | Abbatutors</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
