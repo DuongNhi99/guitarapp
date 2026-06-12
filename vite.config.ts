@@ -4,7 +4,6 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/guitarapp/",
   plugins: [
     react(),
     VitePWA({
@@ -22,8 +21,8 @@ export default defineConfig({
         background_color: "#09090b",
         display: "standalone",
         orientation: "any",
-        start_url: "/guitarapp/",
-        scope: "/guitarapp/",
+        start_url: "/",
+        scope: "/",
         icons: [
           { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
