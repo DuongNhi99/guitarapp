@@ -13,6 +13,7 @@ import SheetsPage from "./pages/SheetsPage";
 import SheetPreviewPage from "./pages/SheetPreviewPage";
 import GuitarPage from "./pages/GuitarPage";
 import SongImagesPage from "./pages/SongImagesPage";
+import UploadImagePage from "./pages/UploadImagePage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/sheets/:id" element={<SheetPreviewPage />} />
             <Route path="/guitar" element={<GuitarPage />} />
             <Route path="/song-images" element={<SongImagesPage />} />
+            <Route path="/song-images/upload" element={<UploadImagePage />} />
             {/* Fallback */}
             <Route path="*" element={<GuitarPage />} />
           </Route>
