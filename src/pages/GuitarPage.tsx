@@ -71,7 +71,7 @@ function midiToFreq(midi: number) {
 
 // ─── Karplus-Strong plucked string synthesis ─────────────────────────────────
 
-function pluck(freq: number, ctx: AudioContext) {
+function pluck(freq: number, ctx: AudioContext, vol = 0.75) {
   const sr = ctx.sampleRate;
   const p = Math.round(sr / freq);
   const n = Math.ceil(2.5 * sr);
@@ -79,10 +79,8 @@ function pluck(freq: number, ctx: AudioContext) {
   const buf = ctx.createBuffer(1, n, sr);
   const d = buf.getChannelData(0);
 
-  // Seed with white noise
   for (let i = 0; i < p; i++) d[i] = Math.random() * 2 - 1;
 
-  // Karplus-Strong averaging filter
   for (let i = p; i < n; i++) {
     d[i] = 0.4975 * (d[i - p] + (i > p ? d[i - p - 1] : 0));
   }
@@ -91,7 +89,7 @@ function pluck(freq: number, ctx: AudioContext) {
   src.buffer = buf;
 
   const gain = ctx.createGain();
-  gain.gain.value = 0.75;
+  gain.gain.value = vol;
   src.connect(gain);
   gain.connect(ctx.destination);
   src.start();
@@ -415,18 +413,43 @@ export default function GuitarPage() {
     setPlayingCanon(progressionKey);
     const ctx = getCtx();
     const validChords = chords.filter((n) => CHORDS[n]);
-    const chordMs = 1600;
-    const strumMs = 60;
+
+    // Slow pop: 72 BPM, 4 beats per chord, D-U-D-U pattern
+    const beat = Math.round(60000 / 72); // ~833 ms
+    const chordMs = beat * 4;
+    const strumSpread = 14; // ms between strings within one strum
+
     validChords.forEach((name, ci) => {
-      const start = ci * chordMs;
-      canonTimeoutsRef.current.push(setTimeout(() => setActiveChord(name), start));
-      CHORDS[name].forEach((f, si) => {
-        if (f < 0) return;
-        canonTimeoutsRef.current.push(
-          setTimeout(() => pluck(midiToFreq(OPEN_MIDI[si] + f), ctx), start + si * strumMs),
-        );
-      });
+      const chordStart = ci * chordMs;
+      canonTimeoutsRef.current.push(setTimeout(() => setActiveChord(name), chordStart));
+
+      const frets = CHORDS[name];
+
+      for (let b = 0; b < 4; b++) {
+        const beatStart = chordStart + b * beat;
+        const isUp = b % 2 === 1; // beats 2 & 4 → upstrum
+
+        if (isUp) {
+          // Upstrum: top 4 strings (5→2), softer
+          [5, 4, 3, 2].forEach((si, idx) => {
+            const f = frets[si];
+            if (f < 0) return;
+            canonTimeoutsRef.current.push(
+              setTimeout(() => pluck(midiToFreq(OPEN_MIDI[si] + f), ctx, 0.38), beatStart + idx * strumSpread),
+            );
+          });
+        } else {
+          // Downstrum: all strings (0→5), full volume
+          frets.forEach((f, si) => {
+            if (f < 0) return;
+            canonTimeoutsRef.current.push(
+              setTimeout(() => pluck(midiToFreq(OPEN_MIDI[si] + f), ctx, 0.7), beatStart + si * strumSpread),
+            );
+          });
+        }
+      }
     });
+
     canonTimeoutsRef.current.push(
       setTimeout(() => setPlayingCanon(null), validChords.length * chordMs + 400),
     );
