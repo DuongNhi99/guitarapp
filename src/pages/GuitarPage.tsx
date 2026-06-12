@@ -506,10 +506,10 @@ export default function GuitarPage() {
   const displayOrder = [5, 4, 3, 2, 1, 0];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white pb-28 sm:pb-10">
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8">
+    <div className="min-h-screen bg-gray-950 text-white pb-36 sm:pb-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 sm:pt-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-6">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-900/50 flex-shrink-0">
               <Music className="w-5 h-5 text-white" />
@@ -613,45 +613,65 @@ export default function GuitarPage() {
         {/* Note display panel */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 overflow-hidden">
           {lastNote ? (
-            <div className="flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-3 sm:py-4">
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="flex flex-col items-center min-w-[40px]">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-white leading-none tracking-tight">
-                    {lastNote.en}
-                  </span>
-                  <span className="text-purple-400 text-sm font-semibold mt-0.5">
-                    {lastNote.vi}
-                  </span>
+            <div className="px-4 sm:px-5 py-3 sm:py-4">
+              <div className="flex items-center gap-3 sm:gap-5">
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex flex-col items-center min-w-[40px]">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-white leading-none tracking-tight">
+                      {lastNote.en}
+                    </span>
+                    <span className="text-purple-400 text-sm font-semibold mt-0.5">
+                      {lastNote.vi}
+                    </span>
+                  </div>
+                  <div className="h-10 w-px bg-gray-700 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-gray-400 text-xs">
+                      {"Dây"}{" "}
+                      <span className="font-bold text-white">
+                        {useVi
+                          ? OPEN_LABELS_VI[lastNote.si]
+                          : OPEN_LABELS_EN[lastNote.si]}
+                      </span>
+                    </span>
+                    <span className="text-gray-400 text-xs">
+                      {"Phím"}{" "}
+                      <span className="font-bold text-white">
+                        {lastNote.fret}
+                      </span>
+                    </span>
+                    <span className="text-gray-600 text-[10px]">
+                      MIDI {lastNote.midi}
+                    </span>
+                  </div>
                 </div>
-                <div className="h-10 w-px bg-gray-700 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-gray-400 text-xs">
-                    {"Dây"}{" "}
-                    <span className="font-bold text-white">
-                      {useVi
-                        ? OPEN_LABELS_VI[lastNote.si]
-                        : OPEN_LABELS_EN[lastNote.si]}
-                    </span>
-                  </span>
-                  <span className="text-gray-400 text-xs">
-                    {"Phím"}{" "}
-                    <span className="font-bold text-white">
-                      {lastNote.fret}
-                    </span>
-                  </span>
-                  <span className="text-gray-600 text-[10px]">
-                    MIDI {lastNote.midi}
-                  </span>
+                <div className="hidden sm:flex flex-wrap gap-1 ml-auto">
+                  {NOTE_EN.map((n, i) => (
+                    <div
+                      key={n}
+                      className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
+                        i === noteClass(lastNote.midi)
+                          ? "bg-purple-600 text-white shadow shadow-purple-900/60 ring-2 ring-purple-400/50"
+                          : n.includes("#")
+                            ? "bg-gray-800 text-gray-600"
+                            : "bg-gray-800/60 text-gray-500",
+                      )}
+                    >
+                      {useVi ? NOTE_VI[i] : n}
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="hidden sm:flex flex-wrap gap-1 ml-auto">
+              {/* Mobile chromatic keyboard */}
+              <div className="flex sm:hidden gap-1 mt-2.5">
                 {NOTE_EN.map((n, i) => (
                   <div
                     key={n}
                     className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
+                      "flex-1 h-7 rounded-md flex items-center justify-center text-[8px] font-semibold select-none transition-colors",
                       i === noteClass(lastNote.midi)
-                        ? "bg-purple-600 text-white shadow shadow-purple-900/60 ring-2 ring-purple-400/50"
+                        ? "bg-purple-600 text-white ring-1 ring-purple-400/60"
                         : n.includes("#")
                           ? "bg-gray-800 text-gray-600"
                           : "bg-gray-800/60 text-gray-500",
@@ -874,8 +894,8 @@ export default function GuitarPage() {
         )}
 
         {/* Fretboard */}
-        <div className="rounded-2xl overflow-hidden mb-5 border border-amber-900/30 shadow-2xl shadow-black/50">
-          <div className="bg-[#1a1005] px-2 sm:px-5 py-3 sm:py-5 overflow-x-auto">
+        <div className="relative rounded-2xl overflow-hidden mb-5 border border-amber-900/30 shadow-2xl shadow-black/50">
+          <div className="bg-[#1a1005] px-2 sm:px-5 py-3 sm:py-5 overflow-x-auto scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="min-w-[600px]">
               <div className="flex items-center mb-1 select-none">
                 <div className="w-11 sm:w-14 flex-shrink-0" />
@@ -962,6 +982,8 @@ export default function GuitarPage() {
               </div>
             </div>
           </div>
+          {/* Mobile scroll-right hint */}
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-black/60 to-transparent pointer-events-none sm:hidden rounded-r-2xl" />
         </div>
 
         {/* Chord library (tabbed) */}
@@ -972,7 +994,7 @@ export default function GuitarPage() {
                 key={group.label}
                 onClick={() => setActiveChordGroup(idx)}
                 className={cn(
-                  "flex-1 py-3 text-sm font-semibold transition-all",
+                  "flex-1 py-3.5 text-sm font-semibold transition-all active:bg-gray-800/40",
                   activeChordGroup === idx
                     ? "text-white border-b-2 border-purple-500 bg-purple-600/10"
                     : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/40",
@@ -982,21 +1004,21 @@ export default function GuitarPage() {
               </button>
             ))}
           </div>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             {CHORD_GROUPS[activeChordGroup].label === "Canon" ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 {CANON_PROGRESSIONS.map(({ key, chords }) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-bold text-gray-500 w-8 flex-shrink-0 text-right pr-1">
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-400 w-9 flex-shrink-0 text-right pr-1">
                       {key}
                     </span>
-                    <div className="flex gap-1 overflow-x-auto pb-0.5">
+                    <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                       {chords.filter((n) => CHORDS[n]).map((name, i) => (
                         <button
                           key={`${key}-${i}`}
                           onClick={() => selectChord(name)}
                           className={cn(
-                            "px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 whitespace-nowrap flex-shrink-0 min-w-[36px] text-center",
+                            "px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 whitespace-nowrap flex-shrink-0 min-w-[40px] text-center",
                             activeChord === name
                               ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
                               : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
@@ -1018,7 +1040,7 @@ export default function GuitarPage() {
                       key={name}
                       onClick={() => selectChord(name)}
                       className={cn(
-                        "px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
+                        "px-4 py-3 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
                         activeChord === name
                           ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
                           : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
@@ -1033,19 +1055,19 @@ export default function GuitarPage() {
         </div>
 
         {/* Open string reference */}
-        <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 p-4">
-          <h2 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+        <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 p-3 sm:p-4">
+          <h2 className="text-sm font-bold text-gray-300 mb-2.5 flex items-center gap-2">
             {"Dây đàn chuẩn"}
             <span className="text-xs text-gray-600 font-normal">
               {"Nhấn để nghe"}
             </span>
           </h2>
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
             {[0, 1, 2, 3, 4, 5].map((si) => (
               <button
                 key={si}
                 onClick={() => playNote(si, 0)}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl bg-gray-800 hover:bg-purple-900/40 border border-gray-700 hover:border-purple-600/60 transition-all active:scale-95 group"
+                className="flex flex-col items-center gap-1 py-3.5 rounded-xl bg-gray-800 hover:bg-purple-900/40 border border-gray-700 hover:border-purple-600/60 transition-all active:scale-95 group"
               >
                 <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
                   {OPEN_LABELS_EN[si]}
@@ -1099,12 +1121,15 @@ export default function GuitarPage() {
       </div>
 
       {/* Mobile bottom toolbar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-gray-900/95 backdrop-blur-md border-t border-gray-800/80">
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-gray-900/95 backdrop-blur-md border-t border-gray-800/80"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
         <div className="flex items-stretch divide-x divide-gray-800/60">
           <button
             onClick={() => setShowNames((v) => !v)}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3.5 transition-all",
               showNames
                 ? "text-purple-400 bg-purple-900/20"
                 : "text-gray-500 active:bg-gray-800/60",
@@ -1130,7 +1155,7 @@ export default function GuitarPage() {
             onClick={playAll}
             disabled={marked.size === 0}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3.5 transition-all",
               marked.size > 0
                 ? "text-green-400 active:bg-green-900/20"
                 : "text-gray-700",
@@ -1145,7 +1170,7 @@ export default function GuitarPage() {
             onClick={clearAll}
             disabled={marked.size === 0}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3.5 transition-all",
               marked.size > 0
                 ? "text-red-400 active:bg-red-900/20"
                 : "text-gray-700",
@@ -1157,7 +1182,7 @@ export default function GuitarPage() {
           <button
             onClick={() => setTunerOpen((v) => !v)}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3.5 transition-all",
               tunerOpen
                 ? "text-cyan-400 bg-cyan-900/20"
                 : "text-gray-500 active:bg-gray-800/60",
@@ -1169,7 +1194,7 @@ export default function GuitarPage() {
           <button
             onClick={() => setMuted((v) => !v)}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-3.5 transition-all",
               muted
                 ? "text-red-400 bg-red-900/20"
                 : "text-gray-500 active:bg-gray-800/60",
