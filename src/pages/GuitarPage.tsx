@@ -3,6 +3,7 @@ import {
   Volume2,
   VolumeX,
   Play,
+  Square,
   Eye,
   EyeOff,
   RotateCcw,
@@ -317,6 +318,9 @@ export default function GuitarPage() {
   const [tunerMidi, setTunerMidi] = useState(-1);
   const [tunerVolume, setTunerVolume] = useState(0);
 
+  const [playingCanon, setPlayingCanon] = useState<string | null>(null);
+  const canonTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   const tunerCtxRef = useRef<AudioContext | null>(null);
   const tunerAnalyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -396,7 +400,39 @@ export default function GuitarPage() {
     }
   }
 
-  // ── Tuner functions ──────────────────────────────────────────────────────────
+  // ── Canon playback ───────────────────────────────────────────────────────────
+
+  function stopCanon() {
+    canonTimeoutsRef.current.forEach(clearTimeout);
+    canonTimeoutsRef.current = [];
+    setPlayingCanon(null);
+  }
+
+  function playCanonProgression(progressionKey: string, chords: string[]) {
+    if (playingCanon === progressionKey) { stopCanon(); return; }
+    stopCanon();
+    if (muted) return;
+    setPlayingCanon(progressionKey);
+    const ctx = getCtx();
+    const validChords = chords.filter((n) => CHORDS[n]);
+    const chordMs = 1600;
+    const strumMs = 60;
+    validChords.forEach((name, ci) => {
+      const start = ci * chordMs;
+      canonTimeoutsRef.current.push(setTimeout(() => setActiveChord(name), start));
+      CHORDS[name].forEach((f, si) => {
+        if (f < 0) return;
+        canonTimeoutsRef.current.push(
+          setTimeout(() => pluck(midiToFreq(OPEN_MIDI[si] + f), ctx), start + si * strumMs),
+        );
+      });
+    });
+    canonTimeoutsRef.current.push(
+      setTimeout(() => setPlayingCanon(null), validChords.length * chordMs + 400),
+    );
+  }
+
+  // ── Tuner functions ───────────────────────────────────────────────────────────
   function runTunerLoop(ts: DOMHighResTimeStamp) {
     const analyser = tunerAnalyserRef.current;
     const buf = tunerBufRef.current;
@@ -488,6 +524,7 @@ export default function GuitarPage() {
       cancelAnimationFrame(tunerRafRef.current);
       micStreamRef.current?.getTracks().forEach((t) => t.stop());
       tunerCtxRef.current?.close();
+      canonTimeoutsRef.current.forEach(clearTimeout);
     };
   }, []);
 
@@ -1009,7 +1046,21 @@ export default function GuitarPage() {
               <div className="flex flex-col gap-2.5">
                 {CANON_PROGRESSIONS.map(({ key, chords }) => (
                   <div key={key} className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-400 w-9 flex-shrink-0 text-right pr-1">
+                    <button
+                      onClick={() => playCanonProgression(key, chords)}
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95 border",
+                        playingCanon === key
+                          ? "bg-purple-600 border-purple-500 text-white shadow shadow-purple-900/40"
+                          : "bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white",
+                      )}
+                      title={playingCanon === key ? "Dừng" : `Phát Canon ${key}`}
+                    >
+                      {playingCanon === key
+                        ? <Square className="w-2.5 h-2.5 fill-current" />
+                        : <Play className="w-2.5 h-2.5 fill-current ml-0.5" />}
+                    </button>
+                    <span className="text-xs font-bold text-gray-400 w-7 flex-shrink-0 text-right pr-1">
                       {key}
                     </span>
                     <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -1019,9 +1070,11 @@ export default function GuitarPage() {
                           onClick={() => selectChord(name)}
                           className={cn(
                             "px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 whitespace-nowrap flex-shrink-0 min-w-[40px] text-center",
-                            activeChord === name
-                              ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
-                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
+                            activeChord === name && playingCanon === key
+                              ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40 ring-1 ring-purple-400/50"
+                              : activeChord === name
+                                ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
+                                : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
                           )}
                         >
                           {name}
