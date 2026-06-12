@@ -12,12 +12,14 @@ import {
   Sliders,
   Sun,
   Moon,
+  Image,
 } from "lucide-react";
 import { cn } from "../../utils";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const navItems = [
   { label: "Bài hát", href: "/songs", icon: Music2 },
+  { label: "Hình hợp âm", href: "/song-images", icon: Image },
   { label: "Bản nhạc", href: "/sheets", icon: FileMusic },
   { label: "Hợp âm", href: "/chords", icon: Guitar },
   { label: "Guitar", href: "/guitar", icon: Sliders },

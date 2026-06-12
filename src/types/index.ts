@@ -14,6 +14,7 @@ export interface Song {
   likes: number;
   createdAt: string;
   youtubeId?: string;
+  sheetImage?: string;
   tags: string[];
 }
 

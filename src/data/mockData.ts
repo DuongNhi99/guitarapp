@@ -424,6 +424,7 @@ Nắm chưa [[Am]] xong đã [[Bm]] vội đổ [[Em]] vỡ.
 Dù đã từng [[C]] nói như thế có [[D]] lẽ sẽ tốt [[G]] hơn
 Chỉ là vì chẳng [[Em]] muốn yêu ai khi mình anh với [[Bm]] những đêm dài
 Nghĩ đi [[Am]] em đâu [[Bm]] ai chung tình được [[Em]] mãi.`,
+    sheetImage: "/sheets/ai-chung-tinh-duoc-mai.jpg",
     views: 31500,
     likes: 2640,
     createdAt: "2021-05-10",
@@ -461,6 +462,7 @@ Nhiều khi cố [[Gm]] quên nhưng chỉ thêm [[Dm]] chuốc vào lòng nhữ
 [[D7]] Ầu yếm hôm [[Gm]] qua không xóa [[F]] được buồn hôm [[Dm]] nay
 Người đời phụ [[Gm]] nhau khi đã cạn chén tình [[C]] say
 [[Dm]] Để lại thương sầu, trót yêu nhau [[Gm]] rồi sao nỡ đành [[F]] làm [[A7]] khổ [[Dm]] nha.`,
+    sheetImage: "/sheets/ai-kho-vi-ai.jpg",
     views: 27800,
     likes: 2210,
     createdAt: "2020-03-15",
@@ -500,6 +502,7 @@ Chuyện thường tình như [[Am]] thế sao ta lại buồn phiền
 Vì một người như thế sao nước mắt cứ tuôn [[Dm]] rơi
 Chắc là tại vì [[G]] tôi không yêu như người [[C]] ta
 Mau yêu mau [[E]] quên như bong bóng [[Am]] bay.`,
+    sheetImage: "/sheets/bac-trang-tinh-doi.jpg",
     views: 24600,
     likes: 1950,
     createdAt: "2019-11-20",
@@ -538,6 +541,7 @@ Sẽ cho nhau đời [[B7]] nhau xót xa [[G]] em
 Thôi [[G]] rồi em cũng [[B7]] mất [[C]] cho tình cúi [[B7]] đầu
 [[Em]] Một mình đi [[G]] mãi trên [[Am]] đường dài không thấy
 Ai [[G]] người quen tôi [[B7]] đấy bao giờ đời sẽ [[Em]] vui`,
+    sheetImage: "/sheets/bai-khong-ten-so-7.jpg",
     views: 38200,
     likes: 3100,
     createdAt: "2018-07-04",
@@ -577,6 +581,7 @@ Mưa đã [[Am]] rơi và nắng đã [[C]] phai, trên cuộc [[E7]] tình ngà
 Ta vẫn [[Dm]] yêu hồn ta vẫn say qua bao [[G]] nhiêu năm tháng ơ [[C]] hờ [[E7]]
 Một ngày nào đó tóc [[A7]] xanh xưa bạc [[Dm]] màu
 Một ngày nào đó ta có [[F]] thôi hết yêu [[Am]] người`,
+    sheetImage: "/sheets/ban-tinh-cuoi.jpg",
     views: 43700,
     likes: 3580,
     createdAt: "2017-09-12",
@@ -623,6 +628,7 @@ Lời ngọt đầu [[Dm]] môi, đã thành câu bội [[Am]] bạc
 Tình đối [[Em]] thay, như áo mặc qua [[G]] tay
 Đời [[Em]] ai không một [[G]] lần
 Dang dở duyên ban [[C]] đầu để trọn [[E7]] kiếp thương [[Am]] đau.`,
+    sheetImage: "/sheets/boi-bac.jpg",
     views: 22100,
     likes: 1780,
     createdAt: "2020-08-25",
@@ -667,6 +673,7 @@ Chồng xa em nhớ [[Am]] mà về
 [Outro]
 Hò [[D]] ơi ơi [[Am]] hò... chồng xa em nhớ mà về
 Hò [[D]] ơi ơi [[Am]] ... chồng xa em nhớ mà về`,
+    sheetImage: "/sheets/bong-dien-dien.jpg",
     views: 18900,
     likes: 1430,
     createdAt: "2021-02-14",
@@ -718,6 +725,7 @@ Sách đem cho bầy [[Gm]] em, lưu bút ghi vài đứa [[A7]] quen
 Ngày lành hắm [[C]] sáu, hai mươi chiếc xe [[F]] màu
 Chờ [[D7]] đám cưới cô [[Gm]] đầu cài hoa trắng sang [[Dm]] cầu
 Ta nhìn nhau tia mắt [[F]] trao một nụ [[A7]] hôn ban [[Dm]] đầu.`,
+    sheetImage: "/sheets/can-nha-mau-tim.jpg",
     views: 34500,
     likes: 2870,
     createdAt: "2019-04-30",

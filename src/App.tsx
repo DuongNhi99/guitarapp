@@ -12,6 +12,7 @@ import FindByChordPage from "./pages/FindByChordPage";
 import SheetsPage from "./pages/SheetsPage";
 import SheetPreviewPage from "./pages/SheetPreviewPage";
 import GuitarPage from "./pages/GuitarPage";
+import SongImagesPage from "./pages/SongImagesPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/sheets/:id/:slug" element={<SheetPreviewPage />} />
             <Route path="/sheets/:id" element={<SheetPreviewPage />} />
             <Route path="/guitar" element={<GuitarPage />} />
+            <Route path="/song-images" element={<SongImagesPage />} />
             {/* Fallback */}
             <Route path="*" element={<GuitarPage />} />
           </Route>
