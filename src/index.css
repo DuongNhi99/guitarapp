@@ -364,3 +364,105 @@ html.light .section-title {
 html.light input::placeholder {
   color: #9ca3af !important;
 }
+
+/* ── Additional opacity variants (GuitarPage panels / toolbar) ── */
+html.light .bg-gray-900\/80 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+html.light .bg-gray-900\/40 {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+}
+html.light .bg-gray-900\/95 {
+  background-color: rgba(244, 245, 247, 0.97) !important;
+}
+html.light .bg-gray-800\/80 {
+  background-color: rgba(237, 240, 244, 0.9) !important;
+}
+html.light .bg-gray-800\/60 {
+  background-color: rgba(237, 240, 244, 0.7) !important;
+}
+html.light .bg-gray-800\/40 {
+  background-color: rgba(237, 240, 244, 0.5) !important;
+}
+html.light .bg-gray-800\/30 {
+  background-color: rgba(237, 240, 244, 0.4) !important;
+}
+
+/* ── Border opacity variants ── */
+html.light .border-gray-800\/80 {
+  border-color: rgba(209, 213, 219, 0.8) !important;
+}
+html.light .divide-gray-800\/60 > * + * {
+  border-color: rgba(209, 213, 219, 0.6) !important;
+}
+html.light .border-gray-700\/50 {
+  border-color: rgba(229, 231, 235, 0.6) !important;
+}
+html.light .hover\:border-gray-500:hover {
+  border-color: #9ca3af !important;
+}
+
+/* ── Chord badge ── */
+html.light .bg-purple-600\/20 {
+  background-color: rgba(124, 58, 237, 0.1) !important;
+}
+html.light .border-purple-500\/40 {
+  border-color: rgba(168, 85, 247, 0.25) !important;
+}
+html.light .text-purple-300 {
+  color: #7c3aed !important;
+}
+
+/* ── Fret cell unmarked hover ── */
+html.light .hover\:bg-purple-700\/30:hover {
+  background-color: rgba(124, 58, 237, 0.08) !important;
+}
+
+/* ── Mute / sound state ── */
+html.light .bg-red-900\/40 {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
+html.light .bg-red-900\/20 {
+  background-color: rgba(239, 68, 68, 0.06) !important;
+}
+html.light .border-red-800\/60 {
+  border-color: rgba(220, 38, 38, 0.25) !important;
+}
+html.light .text-red-400 {
+  color: #dc2626 !important;
+}
+
+/* ── Tuner ── */
+html.light .bg-green-900\/20 {
+  background-color: rgba(34, 197, 94, 0.07) !important;
+}
+html.light .bg-yellow-900\/15 {
+  background-color: rgba(234, 179, 8, 0.05) !important;
+}
+html.light .bg-cyan-800\/50 {
+  background-color: rgba(8, 145, 178, 0.07) !important;
+}
+html.light .bg-cyan-900\/20 {
+  background-color: rgba(22, 78, 99, 0.05) !important;
+}
+html.light .text-cyan-300,
+html.light .text-cyan-400 {
+  color: #0284c7 !important;
+}
+html.light .border-cyan-600\/60 {
+  border-color: rgba(8, 145, 178, 0.3) !important;
+}
+html.light .text-green-400 {
+  color: #16a34a !important;
+}
+
+/* ── Mobile toolbar active states ── */
+html.light .active\:bg-gray-800\/60:active {
+  background-color: rgba(237, 240, 244, 0.8) !important;
+}
+html.light .active\:bg-green-900\/20:active {
+  background-color: rgba(34, 197, 94, 0.08) !important;
+}
+html.light .active\:bg-red-900\/20:active {
+  background-color: rgba(239, 68, 68, 0.06) !important;
+}
