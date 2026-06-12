@@ -45,6 +45,14 @@ export const ARTISTS: Artist[] = [
   { id: 8, name: "BTS", slug: "bts", songCount: 88 },
   { id: 9, name: "Vũ", slug: "vu", songCount: 41 },
   { id: 10, name: "Hồng Nhung", slug: "hong-nhung", songCount: 58 },
+  { id: 15, name: "Đông Thiên Đức", slug: "dong-thien-duc", songCount: 12 },
+  { id: 16, name: "Thương Linh", slug: "thuong-linh", songCount: 45 },
+  { id: 17, name: "Minh Khang", slug: "minh-khang", songCount: 28 },
+  { id: 18, name: "Vũ Thành An", slug: "vu-thanh-an", songCount: 65 },
+  { id: 19, name: "Ngô Thụy Miên", slug: "ngo-thuy-mien", songCount: 52 },
+  { id: 20, name: "Đắc Chung", slug: "dac-chung", songCount: 18 },
+  { id: 21, name: "Hà Phương", slug: "ha-phuong", songCount: 30 },
+  { id: 22, name: "Hoài Linh", slug: "hoai-linh", songCount: 40 },
 ];
 
 export const SONGS: Song[] = [
@@ -382,6 +390,339 @@ Và mãi [[C]] bên em đến cuối [[G]] cuộc đời này`,
     createdAt: "2022-10-17",
     tags: ["ballad", "romantic", "classic"],
   },
+  {
+    id: 9,
+    title: "Ai Chung Tình Được Mãi",
+    slug: "ai-chung-tinh-duoc-mai",
+    artist: { id: 15, name: "Đông Thiên Đức", slug: "dong-thien-duc" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[1],
+    genre: GENRES[0],
+    tone: "Em",
+    capo: 0,
+    chords: ["Em", "Bm", "C", "D", "G", "Am"],
+    content: `[Verse 1]
+[[Em]] Bình minh ơi dậy chưa cà phê [[Bm]] sáng với tôi được không
+[[C]] Chơi vơi qua ngày [[D]] đông sao thấy cô [[G]] đơn và lạc lõng
+[[Em]] Đêm ơi đã ngủ chưa ngồi đây [[Bm]] uống với tôi vài ly
+[[C]] Say thì cứ [[D]] say, yêu thì bỏ [[Em]] đi.
+
+[Verse 2]
+[[Em]] Đôi khi ta gặp nhau để dạy nhau [[Bm]] cách sống trong khổ đau
+[[C]] Đôi chân mang lãng [[D]] thình thương một [[G]] người không hề toan tính
+[[Em]] Đôi khi anh dừng lại chẳng hiểu đang [[Bm]] khóc đang đau vì ai
+[[C]] Khóc vì, [[D]] đau vì duyên mình [[Em]] đã sai.
+
+[Chorus]
+Nhiều khi [[Em]] muốn một mình nhưng sợ cô [[Bm]] đơn
+Sợ cảm [[C]] giác trống vắng mỗi [[D]] ngày mỗi [[G]] lớn
+Sợ chạm vào nỗi [[Em]] nhớ vu vơ gian gian díu [[Bm]] díu mập mờ
+Nắm chưa [[Am]] xong đã [[Bm]] vội đổ [[Em]] vỡ.
+
+[Outro]
+Ừ thì anh [[Em]] thích một mình nhưng sợ cô [[Bm]] đơn
+Dù đã từng [[C]] nói như thế có [[D]] lẽ sẽ tốt [[G]] hơn
+Chỉ là vì chẳng [[Em]] muốn yêu ai khi mình anh với [[Bm]] những đêm dài
+Nghĩ đi [[Am]] em đâu [[Bm]] ai chung tình được [[Em]] mãi.`,
+    views: 31500,
+    likes: 2640,
+    createdAt: "2021-05-10",
+    tags: ["blues", "nhạc trẻ", "tình yêu"],
+  },
+  {
+    id: 10,
+    title: "Ai Khổ Vì Ai",
+    slug: "ai-kho-vi-ai",
+    artist: { id: 16, name: "Thương Linh", slug: "thuong-linh" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[5],
+    genre: GENRES[0],
+    tone: "Dm",
+    capo: 0,
+    chords: ["Dm", "A7", "Gm", "D7", "F", "C", "D", "Em", "Bm", "G", "F#m"],
+    content: `[Verse 1]
+Anh biết chăng [[Dm]] anh, em khổ vì ai, [[A7]] em khóc vì [[Dm]] ai
+Ngày vui đã [[Gm]] tan, nhân tình thế [[Dm]] thái còn lại đống tro [[A7]] tàn
+[[D7]] Em muốn kêu [[Gm]] lên cho thấu [[F]] tận trời cao [[Dm]] xanh
+Rằng tình em [[Gm]] yêu sao giống đời đá phủ [[C]] dung
+Sớm nở tối [[Dm]] tàn, xót thương duyên [[Gm]] mình chưa thắm [[F]] đành [[A7]] dở [[Dm]] dang.
+
+[Chorus]
+Thuở [[D]] xưa ngày đầu của nhau, hai đứa [[Em]] vang câu tình [[D]] ca
+Ngày đầu của [[Bm]] nhau, anh đón đưa em [[G]] về nhà
+Trắng nước hiền [[F#m]] hòa, ngày đầu của [[Em]] nhau hương sắc tình yêu đậm [[Bm]] đà
+Ngày [[D]] nay mình đành bỏ nhau, canh vắng [[Em]] bơ vơ sầu [[D]] đau
+Mình đành bỏ [[Bm]] nhau, quên phút ta yêu [[G]] lần đầu
+Trắng nước bạc [[A7]] màu, người đành bỏ người như sương khói sau chuyến [[Dm]] tàu.
+
+[Verse 2]
+Em biết chăng [[Dm]] em, anh ngủ nào yên anh [[A7]] thức nào [[Dm]] yên
+Nhiều khi cố [[Gm]] quên nhưng chỉ thêm [[Dm]] chuốc vào lòng những ưu [[A7]] phiền
+[[D7]] Ầu yếm hôm [[Gm]] qua không xóa [[F]] được buồn hôm [[Dm]] nay
+Người đời phụ [[Gm]] nhau khi đã cạn chén tình [[C]] say
+[[Dm]] Để lại thương sầu, trót yêu nhau [[Gm]] rồi sao nỡ đành [[F]] làm [[A7]] khổ [[Dm]] nha.`,
+    views: 27800,
+    likes: 2210,
+    createdAt: "2020-03-15",
+    tags: ["bolero", "nhạc vàng", "buồn"],
+  },
+  {
+    id: 11,
+    title: "Bạc Trắng Tình Đời",
+    slug: "bac-trang-tinh-doi",
+    artist: { id: 17, name: "Minh Khang", slug: "minh-khang" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[2],
+    genre: GENRES[0],
+    tone: "Am",
+    capo: 0,
+    chords: ["Am", "C", "G", "Dm", "E"],
+    content: `[Verse 1]
+Ngày [[Am]] mai tôi sẽ cố quên [[C]] người
+Cho [[G]] dù em có quay về [[C]] đây
+Ngày [[Am]] mai tôi sẽ rời xa [[Dm]] em
+Cho [[G]] dù em còn yêu [[Am]] tôi.
+
+[Verse 2]
+Bạc [[Am]] trắng như vôi tình [[C]] đời
+Màu [[G]] đen cho cuộc tình [[C]] hồng
+Tình [[Am]] nghĩa đôi ta từ [[Dm]] đây
+Như vàng [[G]] trắng gặp cơn giông [[E]] bão.
+
+[Chorus]
+Thà là bỏ đi [[Am]] hết ta làm lại từ đầu
+Thà là bỏ đi hết ta chẳng nợ gì [[Dm]] nhau
+Cho quên đi đớn [[G]] đau khỏi bận tâm ngày [[C]] sau
+Vì một người như [[E]] thế có đáng hay [[Am]] không?
+
+[Outro]
+Chuyện thường tình như [[Am]] thế sao ta lại buồn phiền
+Vì một người như thế sao nước mắt cứ tuôn [[Dm]] rơi
+Chắc là tại vì [[G]] tôi không yêu như người [[C]] ta
+Mau yêu mau [[E]] quên như bong bóng [[Am]] bay.`,
+    views: 24600,
+    likes: 1950,
+    createdAt: "2019-11-20",
+    tags: ["disco", "nhạc vàng", "tình yêu"],
+  },
+  {
+    id: 12,
+    title: "Bài Không Tên Số 7",
+    slug: "bai-khong-ten-so-7",
+    artist: { id: 18, name: "Vũ Thành An", slug: "vu-thanh-an" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[4],
+    genre: GENRES[0],
+    tone: "Em",
+    capo: 0,
+    chords: ["Em", "Am", "G", "B7", "C", "E", "D"],
+    content: `[Verse 1]
+Một làn khói [[Em]] trắng ru [[Am]] đời vào quên lãng
+Nắng [[G]] sầu thành hơi [[B7]] ấm [[C]] hờ dịu tình [[B7]] đau
+[[Em]] Ngày tàn im lặng yêu [[Am]] người làn tóc trắng
+Tâm [[G]] sự rời đêm [[B7]] dáng [[C]] như lệ giờ biết [[Em]] nhau
+
+[Chorus]
+[[Em]] Đêm [[E]] vỗ về nuôi [[Am]] nắng, đêm [[D]] trao ngọt ngào hương [[G]] phấn
+[[C]] Buông lơi dòng tóc mờ trên [[Am]] vùng ngày tháng vạt [[B7]] vỡ
+[[Em]] Thân anh giờ hoang [[Am]] phế, lệ [[D]] theo thời gian giống [[G]] gió
+[[C]] Thôi cũng đành cúi xuống cho [[B7]] mộng đời thoát [[Em]] đi
+
+Một [[B7]] đời đổ cho tình yêu từng đêm dòng [[Em]] nước mắt
+[[Am]] Sẽ nâng niu đời [[G]] nhau, đớn đau [[Em]] em
+Sẽ cho nhau đời [[B7]] nhau xót xa [[G]] em
+[[Am]] Dắt đưa mỗi [[C]] hận đời [[B7]] người
+
+[Verse 2]
+[[Em]] Trả lại nước mắt cho [[Am]] mảnh đời son sắc
+Thôi [[G]] rồi em cũng [[B7]] mất [[C]] cho tình cúi [[B7]] đầu
+[[Em]] Một mình đi [[G]] mãi trên [[Am]] đường dài không thấy
+Ai [[G]] người quen tôi [[B7]] đấy bao giờ đời sẽ [[Em]] vui`,
+    views: 38200,
+    likes: 3100,
+    createdAt: "2018-07-04",
+    tags: ["slow", "nhạc vàng", "vũ thành an"],
+  },
+  {
+    id: 13,
+    title: "Bản Tình Cuối",
+    slug: "ban-tinh-cuoi",
+    artist: { id: 19, name: "Ngô Thụy Miên", slug: "ngo-thuy-mien" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[3],
+    genre: GENRES[0],
+    tone: "Am",
+    capo: 0,
+    chords: ["Am", "C", "E7", "Dm", "G", "A7", "F", "E"],
+    content: `[Verse 1]
+Mưa có [[Am]] rơi và nắng có [[C]] phai, trên cuộc [[E7]] tình yêu em ngày [[Am]] nao
+Ta đã [[Dm]] yêu và ta đã mơ, mơ trăng [[G]] sao đưa đến bên [[C]] người [[E7]]
+Một lần gặp gỡ, đã [[A7]] như quen thuở [[Dm]] nào
+Một lần gặp [[F]] gỡ như tình ngỡ xa [[E7]] xưa
+
+[Verse 2]
+Mây có [[Am]] bay và em có [[C]] hay, ta ngại [[E7]] ngùng yêu em lần [[Am]] đầu
+Ta đã [[Dm]] say hồn ta ngất ngây, men yêu [[G]] đương đã thắm cuộc [[C]] đời [[E7]]
+Một lần nào đó bước [[A7]] bên em êm [[Dm]] thắm
+Một lần nào đó ta vẫn [[F]] không nói yêu [[Am]] người
+
+[Chorus]
+Yêu [[C]] em, ta yêu em như yêu tuổi ngày [[Am]] thơ
+Bên [[Dm]] em, bên em ta hát khúc mong [[Am]] chờ
+Ngày [[E]] nào người cho ta [[Dm]] biết tình là đắm [[C]] say
+Ngày [[Dm]] nào đời cho ta [[E]] biết tình là đắng cay
+
+[Verse 3]
+Mưa đã [[Am]] rơi và nắng đã [[C]] phai, trên cuộc [[E7]] tình ngày thơ ngày [[Am]] nào
+Ta vẫn [[Dm]] yêu hồn ta vẫn say qua bao [[G]] nhiêu năm tháng ơ [[C]] hờ [[E7]]
+Một ngày nào đó tóc [[A7]] xanh xưa bạc [[Dm]] màu
+Một ngày nào đó ta có [[F]] thôi hết yêu [[Am]] người`,
+    views: 43700,
+    likes: 3580,
+    createdAt: "2017-09-12",
+    tags: ["slow rock", "nhạc vàng", "ngô thụy miên"],
+  },
+  {
+    id: 14,
+    title: "Bội Bạc",
+    slug: "boi-bac",
+    artist: { id: 20, name: "Đắc Chung", slug: "dac-chung" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[5],
+    genre: GENRES[0],
+    tone: "Am",
+    capo: 0,
+    chords: ["Am", "C", "F", "Em", "Dm", "G", "E7", "E"],
+    content: `[Verse 1]
+Nhiều đêm khắc [[Am]] khoải, niềm [[C]] ưu tư chợt [[F]] đến
+Cho nhớ thương đong [[Em]] đầy, kỷ niệm xưa còn [[Am]] đây
+Mà người đối [[Dm]] thay, chối [[F]] bỏ câu hẹn [[Am]] thề
+Để lại [[Em]] nhau chưa xót và thương [[G]] đau
+Từng [[Em]] đêm mưa giăng [[G]] sầu
+Khi nước mắt ban [[C]] đầu mình đã [[E7]] khóc cho [[Am]] nhau.
+
+[Verse 2]
+Niềm tin chớm [[Am]] nở, mình [[C]] thương nhau từ [[F]] đó
+Không dám đo âu [[Em]] lo ngõ quen nhau từ [[Am]] lâu
+Và nào ngờ [[Dm]] đâu cũng [[F]] đành thôi tạ [[Am]] từ
+Cuộc tình [[Em]] như ong bướm vờn bên [[G]] hoa
+Và khi [[Em]] hoa phai [[G]] tàn
+Ong bướm bay theo [[C]] đàn để lại [[E7]] kiếp ly [[Am]] tan.
+
+[Chorus]
+Nhưng [[C]] thôi nhắc lại [[Em]] chỉ đau đớn [[Am]] lòng
+Vì đời mấy [[Am]] ai giữ được câu chung [[C]] tình
+Mấy ai hiểu cho [[Am]] mình, xuôi trăng đổi [[Dm]] tay
+Đường tình còn [[G]] ai dù duyên kiếp không [[E]] thành
+Chỉ buồn phận mình [[Am]] thôi.
+
+[Verse 3]
+Đường yêu lắm [[Am]] néo, nụ [[C]] hoa thương tàn [[F]] héo
+Cho nhớ nhung mang [[Em]] theo, nếu xưa ta đừng [[Am]] quen
+Lời ngọt đầu [[Dm]] môi, đã thành câu bội [[Am]] bạc
+Tình đối [[Em]] thay, như áo mặc qua [[G]] tay
+Đời [[Em]] ai không một [[G]] lần
+Dang dở duyên ban [[C]] đầu để trọn [[E7]] kiếp thương [[Am]] đau.`,
+    views: 22100,
+    likes: 1780,
+    createdAt: "2020-08-25",
+    tags: ["bolero", "nhạc vàng", "buồn"],
+  },
+  {
+    id: 15,
+    title: "Bông Điên Điển",
+    slug: "bong-dien-dien",
+    artist: { id: 21, name: "Hà Phương", slug: "ha-phuong" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[0],
+    genre: GENRES[0],
+    tone: "Am",
+    capo: 0,
+    chords: ["C", "Am", "Dm", "Em", "F", "D"],
+    content: `[Intro]
+Má [[C]] ơi đừng gả con xa, chim kêu vượn [[Am]] hú
+Hò ơi [[C]] chim kêu vượn [[Am]] hú biết nhà má [[Dm]] đâu
+
+[Verse 1]
+Em đi lấy [[Am]] chồng về nơi xứ [[C]] xa
+Đêm ru diệu [[Em]] hát giọng hò trên [[Am]] môi
+Miền [[F]] Tây xanh sắc mây [[C]] trời
+Phù sa nước [[Am]] nổi người [[C]] ơi đừng [[Am]] về
+
+[Verse 2]
+Với [[C]] màu điên điển say [[F]] mê
+Vàng trong ánh [[Am]] mắt vỗ về gót [[Em]] chân
+Trót thương tình nghĩa vợ [[Am]] chồng
+Nên [[D]] bông điên điển nở cho [[Am]] lòng vấn [[C]] vương
+Tình [[Em]] thương em nhớ [[Am]] mà lường
+
+[Verse 3]
+Chồng [[Am]] gần không lấy em lấy chồng [[C]] xa
+Giờ đây nhớ mẹ thương [[F]] cha
+Còn [[C]] đâu mà thông [[Am]] thả để về nhà [[C]] thăm
+Xa xăm nơi chốn bụng [[Am]] biển
+Ăn bông mà điên điển nghiêng mình nhớ đất [[C]] quê
+Chồng xa em nhớ [[Am]] mà về
+
+[Outro]
+Hò [[D]] ơi ơi [[Am]] hò... chồng xa em nhớ mà về
+Hò [[D]] ơi ơi [[Am]] ... chồng xa em nhớ mà về`,
+    views: 18900,
+    likes: 1430,
+    createdAt: "2021-02-14",
+    tags: ["dân ca", "miền tây", "quê hương"],
+  },
+  {
+    id: 16,
+    title: "Căn Nhà Màu Tím",
+    slug: "can-nha-mau-tim",
+    artist: { id: 22, name: "Hoài Linh", slug: "hoai-linh" },
+    contributors: ["admin"],
+    rhythm: RHYTHMS[5],
+    genre: GENRES[0],
+    tone: "Dm",
+    capo: 0,
+    chords: ["Dm", "A7", "Bb", "Gm", "C", "F", "D7"],
+    content: `[Verse 1]
+Chiều nhìn ra đầu [[Dm]] ngõ
+Dáng dáng niềm thương [[A7]] nhớ dáng xinh xinh một [[Dm]] người
+Được nghỉ năm ngày [[Bb]] phép
+Mắt hai hôm làm [[Gm]] quen em mới cho mình biết [[A7]] tên
+Cuộc đời chinh [[C]] chiến quanh năm dưới bụng [[F]] biển
+Thì [[D7]] gót liễu mong [[Gm]] manh làm sao bước song [[Dm]] hành
+Anh chỉ e ngại gió [[F]] lay nụ tầm xuân vừa [[A7]] hé
+
+[Verse 2]
+Chiều nào khi về [[Dm]] đến
+Ngang căn nhà màu [[A7]] tím biết em đang trộm [[Dm]] nhìn
+Vào mộng chưa tỏ [[Bb]] lối
+Bến mơ đáng chờ [[Gm]] nơi, chưa thấy ai vừa ý [[A7]] thôi
+Đời người con [[C]] gái mưa sa giữa lưng [[F]] trời
+Hạt [[D7]] xuống giếng ngâm [[Gm]] ngùi, hạt rơi luống hoa [[Dm]] cười
+Ai chẳng mong gặp bến [[F]] trong khói hồn [[A7]] duyên má [[Dm]] hồng
+
+[Chorus]
+Đời [[Bb]] anh đây đó mười phương
+Gặp [[Gm]] em anh đã thương càng [[F]] thương
+Thương đôi môi [[A7]] đầy nhựa sống, thương tia mắt [[Dm]] đào dạt sóng
+Tuổi ngọc xuân [[Bb]] son nét ngà uốn trăng [[A7]] tròn
+Tình [[Bb]] anh cao vút trường sơn gặp [[Gm]] em anh ước mong gì [[F]] hơn
+Cho anh bóng [[A7]] hồng con thắm cho anh trái [[Dm]] ngọt vườn cấm
+Và còn cho [[C]] nữa tiếng [[A7]] ru trẻ [[Dm]] thơ
+
+[Verse 3]
+Nẻo đời muôn vạn [[Dm]] lối
+Yêu nhau vì lời [[A7]] nói mến nhau qua nụ [[Dm]] cười
+Dặn dò thêm lần [[Bb]] cuối
+Sách đem cho bầy [[Gm]] em, lưu bút ghi vài đứa [[A7]] quen
+Ngày lành hắm [[C]] sáu, hai mươi chiếc xe [[F]] màu
+Chờ [[D7]] đám cưới cô [[Gm]] đầu cài hoa trắng sang [[Dm]] cầu
+Ta nhìn nhau tia mắt [[F]] trao một nụ [[A7]] hôn ban [[Dm]] đầu.`,
+    views: 34500,
+    likes: 2870,
+    createdAt: "2019-04-30",
+    tags: ["bolero", "nhạc vàng", "hoài linh"],
+  },
 ];
 
 export const TRENDING_SONGS = SONGS.slice(0, 6);
@@ -516,6 +857,33 @@ export const CHORD_DIAGRAMS: Record<string, ChordDiagram> = {
     frets: [-1, 2, 1, 2, 0, 2],
     fingers: [0, 2, 1, 3, 0, 4],
     baseFret: 1,
+  },
+  Gm: {
+    name: "Gm",
+    frets: [3, 5, 5, 3, 3, 3],
+    fingers: [1, 3, 4, 1, 1, 1],
+    baseFret: 1,
+    barres: [{ fromString: 6, toString: 1, fret: 3 }],
+  },
+  D7: {
+    name: "D7",
+    frets: [-1, -1, 0, 2, 1, 2],
+    fingers: [0, 0, 0, 2, 1, 3],
+    baseFret: 1,
+  },
+  Bb: {
+    name: "Bb",
+    frets: [-1, 1, 3, 3, 3, 1],
+    fingers: [0, 1, 3, 4, 2, 1],
+    baseFret: 1,
+    barres: [{ fromString: 5, toString: 1, fret: 1 }],
+  },
+  "F#m": {
+    name: "F#m",
+    frets: [2, 4, 4, 2, 2, 2],
+    fingers: [1, 3, 4, 1, 1, 1],
+    baseFret: 1,
+    barres: [{ fromString: 6, toString: 1, fret: 2 }],
   },
 };
 
