@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Guitar, Heart, ExternalLink } from "lucide-react";
+import { Guitar, Heart, ExternalLink, Coffee } from "lucide-react";
 import { RHYTHMS, GENRES } from "../../data/mockData";
 
 export default function Footer() {
@@ -102,11 +102,20 @@ export default function Footer() {
           <p className="text-gray-500 text-sm">
             © {new Date().getFullYear()} Abbatutors. All rights reserved.
           </p>
-          <p className="text-gray-500 text-sm flex items-center gap-1">
-            Made with{" "}
-            <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" /> for
-            music lovers
-          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/donate"
+              className="inline-flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/40 text-amber-400 hover:text-amber-300 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200"
+            >
+              <Coffee className="w-3.5 h-3.5" />
+              Mua cà phê cho mình
+            </Link>
+            <p className="text-gray-500 text-sm flex items-center gap-1">
+              Made with{" "}
+              <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" /> for
+              music lovers
+            </p>
+          </div>
         </div>
       </div>
     </footer>

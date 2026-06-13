@@ -14,6 +14,7 @@ import SheetPreviewPage from "./pages/SheetPreviewPage";
 import GuitarPage from "./pages/GuitarPage";
 import SongImagesPage from "./pages/SongImagesPage";
 import UploadImagePage from "./pages/UploadImagePage";
+import DonatePage from "./pages/DonatePage";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/guitar" element={<GuitarPage />} />
             <Route path="/song-images" element={<SongImagesPage />} />
             <Route path="/song-images/upload" element={<UploadImagePage />} />
+            <Route path="/donate" element={<DonatePage />} />
             {/* Fallback */}
             <Route path="*" element={<GuitarPage />} />
           </Route>
