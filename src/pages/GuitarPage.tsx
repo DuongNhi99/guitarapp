@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   Volume2,
   VolumeX,
@@ -50,7 +50,7 @@ const OPEN_LABELS_VI = ["Mi", "La", "Rê", "Sol", "Si", "Mi"];
 const OPEN_LABELS_EN = ["E2", "A2", "D3", "G3", "B3", "E4"];
 
 /** Visual string thickness (index 0 = low E, thickest) */
-const STRING_THICKNESS = [3.0, 2.4, 1.8, 1.3, 0.9, 0.6];
+const STRING_THICKNESS = [4.2, 3.2, 2.4, 1.7, 1.1, 0.75];
 
 const NUM_FRETS = 14; // display frets 1 – 14
 const FRET_DOTS = new Set([3, 5, 7, 9, 12]);
@@ -195,11 +195,23 @@ const CANON_PROGRESSIONS = [
 ];
 
 const CHORD_GROUPS = [
+  { label: "Canon", names: [] },
   { label: "Trưởng", names: ["C", "D", "E", "F", "G", "A", "B"] },
   { label: "Thứ", names: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"] },
   { label: "7", names: ["C7", "D7", "E7", "G7", "A7", "B7", "Am7", "Dm7"] },
-  { label: "Canon", names: [] },
+  { label: "Thang âm", names: [] },
 ];
+
+const SCALES: Record<string, { label: string; intervals: number[] }> = {
+  major:           { label: "Trưởng (Major)",      intervals: [0, 2, 4, 5, 7, 9, 11] },
+  natural_minor:   { label: "Thứ (Minor)",          intervals: [0, 2, 3, 5, 7, 8, 10] },
+  pentatonic_major:{ label: "Pentatonic Trưởng",    intervals: [0, 2, 4, 7, 9] },
+  pentatonic_minor:{ label: "Pentatonic Thứ",       intervals: [0, 3, 5, 7, 10] },
+  blues:           { label: "Blues",                intervals: [0, 3, 5, 6, 7, 10] },
+  dorian:          { label: "Dorian",               intervals: [0, 2, 3, 5, 7, 9, 10] },
+  phrygian:        { label: "Phrygian",             intervals: [0, 1, 3, 5, 7, 8, 10] },
+  mixolydian:      { label: "Mixolydian",           intervals: [0, 2, 4, 5, 7, 9, 10] },
+};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -217,6 +229,8 @@ interface CellProps {
   isOpen: boolean;
   isWound: boolean;
   onClick: () => void;
+  scaleStatus?: 'root' | 'note' | null;
+  isInlay?: boolean;
 }
 
 function FretCell({
@@ -228,6 +242,8 @@ function FretCell({
   isOpen,
   isWound,
   onClick,
+  scaleStatus = null,
+  isInlay = false,
 }: CellProps) {
   const name = getNoteName(midi, vi);
   const nameEn = NOTE_EN[noteClass(midi)]; // always-English short name for marked dots
@@ -237,49 +253,85 @@ function FretCell({
     <div
       className={cn(
         "relative flex items-center justify-center",
-        isOpen ? "w-10 flex-shrink-0 h-10" : "flex-1 h-10",
+        isOpen ? "w-10 flex-shrink-0 h-[44px] sm:h-[52px]" : "flex-1 h-[44px] sm:h-[52px]",
       )}
     >
-      {/* String line */}
+      {/* Inlay position hint – barely-there glow so it never reads as a note */}
+      {isInlay && (
+        <div
+          className="absolute w-3 h-3 rounded-full pointer-events-none"
+          style={{ background: 'rgba(255,225,130,0.06)', zIndex: 0 }}
+        />
+      )}
+      {/* String line – cylindrical metallic look */}
       <div
-        className={cn(
-          "absolute left-0 right-0 pointer-events-none",
-          isWound ? "bg-amber-600/55" : "bg-gray-400/45",
-        )}
+        className="absolute left-0 right-0 pointer-events-none"
         style={{
-          height: `${thickness}px`,
-          top: "50%",
-          transform: "translateY(-50%)",
+          height: `${Math.max(thickness, 1)}px`,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: isWound
+            ? 'linear-gradient(to bottom, rgba(70,48,8,0.80), rgba(188,138,42,0.96), rgba(215,170,60,1), rgba(188,138,42,0.96), rgba(70,48,8,0.80))'
+            : 'linear-gradient(to bottom, rgba(55,55,75,0.72), rgba(178,178,200,0.94), rgba(205,205,225,1), rgba(178,178,200,0.94), rgba(55,55,75,0.72))',
+          boxShadow: isWound
+            ? '0 0 5px rgba(190,140,30,0.38), 0 1px 0 rgba(250,200,80,0.12)'
+            : '0 0 4px rgba(160,160,210,0.30), 0 1px 0 rgba(240,240,255,0.10)',
         }}
       />
-      {/* Fret wire (not on open-string column) */}
+      {/* Fret wire */}
       {!isOpen && (
-        <div className="absolute left-0 inset-y-0 w-px bg-gray-500/50 pointer-events-none" />
+        <div
+          className="absolute left-0 inset-y-0 w-px pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(180,185,200,0.65) 20%, rgba(210,215,230,0.70) 50%, rgba(180,185,200,0.65) 80%, transparent 100%)' }}
+        />
       )}
 
       {isMarked ? (
         <button
           onClick={onClick}
-          className="relative z-10 w-7 h-7 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center transition-all shadow-lg shadow-purple-900/60 border border-purple-400/60 focus:outline-none"
+          className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-purple-950/70 border-2 border-purple-300/60 focus:outline-none"
           aria-label={`Bỏ đánh dấu ${name}`}
         >
-          <span className="text-[10px] font-extrabold text-white leading-none select-none">
+          <span className="text-[10px] sm:text-[11px] font-extrabold text-white leading-none select-none">
+            {nameEn}
+          </span>
+        </button>
+      ) : scaleStatus ? (
+        <button
+          onClick={onClick}
+          className={cn(
+            "relative z-10 rounded-full flex items-center justify-center transition-all active:scale-90 focus:outline-none",
+            scaleStatus === 'root'
+              ? "w-8 h-8 sm:w-10 sm:h-10 bg-amber-500 hover:bg-amber-400 border-2 border-amber-100/90"
+              : "w-6 h-6 sm:w-7 sm:h-7 bg-teal-500 hover:bg-teal-400 border border-teal-200/70",
+          )}
+          style={scaleStatus === 'root' ? {
+            boxShadow: '0 0 0 2px rgba(251,191,36,0.32), 0 0 14px rgba(251,191,36,0.55)',
+          } : {
+            boxShadow: '0 0 8px rgba(20,184,166,0.40)',
+          }}
+          aria-label={`Đánh dấu ${name}`}
+        >
+          <span className={cn(
+            "font-black text-white leading-none select-none tracking-tight",
+            scaleStatus === 'root' ? "text-[10px] sm:text-[12px]" : "text-[9px] sm:text-[10px] font-extrabold",
+          )}>
             {nameEn}
           </span>
         </button>
       ) : (
         <button
           onClick={onClick}
-          className="relative z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-purple-700/30 group focus:outline-none"
+          className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all hover:bg-purple-700/30 group focus:outline-none"
           aria-label={`Đánh dấu ${name}`}
         >
           {showNames && (
             <span
               className={cn(
-                "text-[8px] font-medium pointer-events-none select-none transition-colors",
+                "text-[10px] font-medium pointer-events-none select-none transition-colors",
                 sharp
                   ? "text-pink-400/70 group-hover:text-pink-300"
-                  : "text-gray-500 group-hover:text-gray-300",
+                  : "text-gray-400 group-hover:text-gray-200",
               )}
             >
               {name}
@@ -309,6 +361,9 @@ export default function GuitarPage() {
     fret: number;
   } | null>(null);
 
+  const [activeScaleRoot, setActiveScaleRoot] = useState<number | null>(null);
+  const [activeScaleType, setActiveScaleType] = useState<string>("major");
+
   // ── Tuner state ──────────────────────────────────────────────────────────────
   const [tunerOpen, setTunerOpen] = useState(false);
   const [tunerActive, setTunerActive] = useState(false);
@@ -327,6 +382,23 @@ export default function GuitarPage() {
   const tunerLastTsRef = useRef<number>(0);
 
   const audioRef = useRef<AudioContext | null>(null);
+
+  const scaleClasses = useMemo(() => {
+    if (activeScaleRoot === null) return null;
+    const intervals = SCALES[activeScaleType]?.intervals ?? [];
+    return new Set(intervals.map((i) => (activeScaleRoot + i) % 12));
+  }, [activeScaleRoot, activeScaleType]);
+
+  const getScaleStatus = useCallback(
+    (midi: number): 'root' | 'note' | null => {
+      if (!scaleClasses || activeScaleRoot === null) return null;
+      const nc = noteClass(midi);
+      if (nc === activeScaleRoot) return 'root';
+      if (scaleClasses.has(nc)) return 'note';
+      return null;
+    },
+    [scaleClasses, activeScaleRoot],
+  );
 
   const getCtx = useCallback((): AudioContext => {
     if (!audioRef.current) audioRef.current = new AudioContext();
@@ -700,7 +772,7 @@ export default function GuitarPage() {
                         {lastNote.fret}
                       </span>
                     </span>
-                    <span className="text-gray-600 text-[10px]">
+                    <span className="hidden sm:block text-gray-600 text-[10px]">
                       MIDI {lastNote.midi}
                     </span>
                   </div>
@@ -710,12 +782,12 @@ export default function GuitarPage() {
                     <div
                       key={n}
                       className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-colors",
+                        "w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-semibold select-none transition-all border",
                         i === noteClass(lastNote.midi)
-                          ? "bg-purple-600 text-white shadow shadow-purple-900/60 ring-2 ring-purple-400/50"
+                          ? "bg-purple-600 border-purple-400/60 text-white shadow-md shadow-purple-900/60 ring-2 ring-purple-400/50"
                           : n.includes("#")
-                            ? "bg-gray-800 text-gray-600"
-                            : "bg-gray-800/60 text-gray-500",
+                            ? "bg-gray-800 border-gray-700/60 text-gray-400"
+                            : "bg-gray-600/70 border-gray-500/50 text-gray-100",
                       )}
                     >
                       {useVi ? NOTE_VI[i] : n}
@@ -724,17 +796,17 @@ export default function GuitarPage() {
                 </div>
               </div>
               {/* Mobile chromatic keyboard */}
-              <div className="flex sm:hidden gap-1 mt-2.5">
+              <div className="flex sm:hidden gap-0.5 mt-2.5">
                 {NOTE_EN.map((n, i) => (
                   <div
                     key={n}
                     className={cn(
-                      "flex-1 h-7 rounded-md flex items-center justify-center text-[8px] font-semibold select-none transition-colors",
+                      "flex-1 h-8 rounded flex items-center justify-center text-[8px] font-bold select-none transition-all border",
                       i === noteClass(lastNote.midi)
-                        ? "bg-purple-600 text-white ring-1 ring-purple-400/60"
+                        ? "bg-purple-600 border-purple-400/60 text-white ring-1 ring-purple-400/60"
                         : n.includes("#")
-                          ? "bg-gray-800 text-gray-600"
-                          : "bg-gray-800/60 text-gray-500",
+                          ? "bg-gray-800 border-gray-700/50 text-gray-400"
+                          : "bg-gray-600/70 border-gray-500/40 text-gray-100",
                     )}
                   >
                     {useVi ? NOTE_VI[i] : n}
@@ -943,45 +1015,79 @@ export default function GuitarPage() {
           </div>
         )}
 
-        {/* Active chord badge */}
-        {activeChord && (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-gray-500 text-xs">{"Đang xem:"}</span>
-            <span className="px-3 py-0.5 rounded-full bg-purple-600/20 border border-purple-500/40 text-purple-300 text-sm font-bold">
-              {activeChord}
-            </span>
+        {/* Active chord / scale badge */}
+        {(activeChord || activeScaleRoot !== null) && (
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            {activeChord && (
+              <>
+                <span className="text-gray-500 text-xs">{"Đang xem:"}</span>
+                <span className="px-3 py-0.5 rounded-full bg-purple-600/20 border border-purple-500/40 text-purple-300 text-sm font-bold">
+                  {activeChord}
+                </span>
+              </>
+            )}
+            {activeScaleRoot !== null && (
+              <>
+                {activeChord && <span className="text-gray-700 text-xs">·</span>}
+                {!activeChord && <span className="text-gray-500 text-xs">{"Thang âm:"}</span>}
+                <span className="px-3 py-0.5 rounded-full bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 text-sm font-bold">
+                  {(useVi ? NOTE_VI[activeScaleRoot] : NOTE_EN[activeScaleRoot])}{" "}
+                  {SCALES[activeScaleType].label}
+                </span>
+                <button
+                  onClick={() => setActiveScaleRoot(null)}
+                  className="text-gray-600 hover:text-red-400 transition-colors text-sm leading-none"
+                  aria-label="Xóa thang âm"
+                >
+                  ×
+                </button>
+              </>
+            )}
           </div>
         )}
 
         {/* Fretboard */}
-        <div className="relative rounded-2xl overflow-hidden mb-5 border border-amber-900/30 shadow-2xl shadow-black/50">
-          <div className="bg-[#1a1005] px-2 sm:px-5 py-3 sm:py-5 overflow-x-auto scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="min-w-[600px]">
+        <div className="relative rounded-2xl overflow-hidden mb-5 border border-amber-700/50 shadow-2xl shadow-black/70">
+          <div className="px-1 sm:px-5 py-2 sm:py-5 overflow-x-auto scroll-smooth" style={{ WebkitOverflowScrolling: 'touch', background: 'linear-gradient(180deg, #2e1a08 0%, #1e0f04 35%, #271508 65%, #1e0f04 100%)' }}>
+            <div className="min-w-[620px] sm:min-w-[700px]">
               <div className="flex items-center mb-1 select-none">
-                <div className="w-11 sm:w-14 flex-shrink-0" />
-                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-400/90 font-mono">
+                <div className="w-9 sm:w-14 flex-shrink-0" />
+                <div className="w-10 flex-shrink-0 text-center text-[10px] text-amber-300 font-mono font-bold">
                   0
                 </div>
-                <div className="w-3 flex-shrink-0" />
+                <div className="w-[6px] flex-shrink-0" />
                 {Array.from({ length: NUM_FRETS }, (_, i) => (
                   <div
                     key={i}
-                    className="flex-1 text-center text-[10px] text-amber-400/90 font-mono"
+                    className={cn(
+                      "flex-1 text-center text-[10px] font-mono font-bold",
+                      FRET_DOTS.has(i + 1) ? "text-amber-300" : "text-amber-400/60",
+                    )}
                   >
                     {i + 1}
                   </div>
                 ))}
               </div>
-              {displayOrder.map((si) => {
+              {displayOrder.map((si, displayIdx) => {
                 const openMidi = OPEN_MIDI[si];
                 const isWound = si <= 2;
+                // Inlay dots between G (row 2) and D (row 3) strings for standard positions
+                const isSingleDotRow = displayIdx === 2;
+                const isDoubleDotRowTop = displayIdx === 1;
+                const isDoubleDotRowBot = displayIdx === 4;
                 return (
-                  <div key={si} className="flex items-center">
-                    <div className="w-11 sm:w-14 flex-shrink-0 flex items-center justify-end pr-2 sm:pr-3 select-none">
+                  <div
+                    key={si}
+                    className={cn(
+                      "flex items-center",
+                      displayIdx % 2 === 0 ? "bg-white/[0.04]" : "bg-black/[0.08]",
+                    )}
+                  >
+                    <div className="w-9 sm:w-14 flex-shrink-0 flex items-center justify-end pr-1.5 sm:pr-3 select-none">
                       <span
                         className={cn(
-                          "text-xs font-mono font-semibold",
-                          isWound ? "text-amber-400/80" : "text-amber-200/70",
+                          "text-xs font-mono font-bold",
+                          isWound ? "text-amber-300" : "text-amber-100/80",
                         )}
                       >
                         {useVi ? OPEN_LABELS_VI[si] : OPEN_LABELS_EN[si]}
@@ -996,10 +1102,17 @@ export default function GuitarPage() {
                       isOpen
                       isWound={isWound}
                       onClick={() => toggleMark(si, 0)}
+                      scaleStatus={getScaleStatus(openMidi)}
                     />
-                    <div className="w-3 flex-shrink-0 self-stretch bg-[#e8dcc0]/80 rounded-sm" />
+                    <div
+                      className="w-[6px] flex-shrink-0 self-stretch"
+                      style={{ background: '#c8b870', boxShadow: 'inset -1px 0 2px rgba(0,0,0,0.5), inset 1px 0 1px rgba(255,240,160,0.3)' }}
+                    />
                     {Array.from({ length: NUM_FRETS }, (_, fi) => {
                       const fret = fi + 1;
+                      const isInlay =
+                        (isSingleDotRow && FRET_DOTS.has(fret) && fret !== DOUBLE_DOT_FRET) ||
+                        ((isDoubleDotRowTop || isDoubleDotRowBot) && fret === DOUBLE_DOT_FRET);
                       return (
                         <FretCell
                           key={fret}
@@ -1011,16 +1124,18 @@ export default function GuitarPage() {
                           isOpen={false}
                           isWound={isWound}
                           onClick={() => toggleMark(si, fret)}
+                          scaleStatus={getScaleStatus(openMidi + fret)}
+                          isInlay={isInlay}
                         />
                       );
                     })}
                   </div>
                 );
               })}
-              <div className="flex items-center mt-1 select-none">
-                <div className="w-11 sm:w-14 flex-shrink-0" />
+              <div className="flex items-center mt-0.5 select-none">
+                <div className="w-9 sm:w-14 flex-shrink-0" />
                 <div className="w-10 flex-shrink-0" />
-                <div className="w-3 flex-shrink-0" />
+                <div className="w-[6px] flex-shrink-0" />
                 {Array.from({ length: NUM_FRETS }, (_, i) => {
                   const f = i + 1;
                   return (
@@ -1029,10 +1144,10 @@ export default function GuitarPage() {
                       className="flex-1 flex items-center justify-center py-1.5"
                     >
                       {FRET_DOTS.has(f) && (
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 rounded-full bg-amber-400/80" />
+                        <div className="flex gap-1.5">
+                          <div className="w-3 h-3 rounded-full bg-amber-400 shadow shadow-amber-900/50" />
                           {f === DOUBLE_DOT_FRET && (
-                            <div className="w-2 h-2 rounded-full bg-amber-400/80" />
+                            <div className="w-3 h-3 rounded-full bg-amber-400 shadow shadow-amber-900/50" />
                           )}
                         </div>
                       )}
@@ -1048,19 +1163,30 @@ export default function GuitarPage() {
 
         {/* Chord library (tabbed) */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 mb-4 overflow-hidden">
-          <div className="flex border-b border-gray-800">
+          <div className="flex border-b border-gray-800 overflow-x-auto">
             {CHORD_GROUPS.map((group, idx) => (
               <button
                 key={group.label}
                 onClick={() => setActiveChordGroup(idx)}
                 className={cn(
-                  "flex-1 py-3.5 text-sm font-semibold transition-all active:bg-gray-800/40",
+                  "flex-1 py-2.5 sm:py-3.5 text-[11px] sm:text-sm font-semibold transition-all active:bg-gray-800/40 whitespace-nowrap px-1",
                   activeChordGroup === idx
                     ? "text-white border-b-2 border-purple-500 bg-purple-600/10"
                     : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/40",
                 )}
               >
-                {group.label === "7" ? "Hợp âm 7" : group.label === "Canon" ? "Canon" : "Hợp âm " + group.label}
+                <span className="sm:hidden">
+                  {group.label === "7" ? "Loại 7"
+                    : group.label === "Canon" ? "Canon"
+                    : group.label === "Thang âm" ? "Gam"
+                    : group.label}
+                </span>
+                <span className="hidden sm:inline">
+                  {group.label === "7" ? "Hợp âm 7"
+                    : group.label === "Canon" ? "Canon"
+                    : group.label === "Thang âm" ? "Thang âm"
+                    : "Hợp âm " + group.label}
+                </span>
               </button>
             ))}
           </div>
@@ -1106,6 +1232,75 @@ export default function GuitarPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : CHORD_GROUPS[activeChordGroup].label === "Thang âm" ? (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">{"Nốt gốc"}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {NOTE_EN.map((note, i) => (
+                      <button
+                        key={note}
+                        onClick={() => setActiveScaleRoot(activeScaleRoot === i ? null : i)}
+                        className={cn(
+                          "px-2.5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 min-w-[36px] text-center border",
+                          activeScaleRoot === i
+                            ? "bg-amber-500 border-amber-400 text-white shadow shadow-amber-900/40"
+                            : note.includes("#")
+                              ? "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-300 hover:border-gray-500"
+                              : "bg-gray-800 border-gray-700 text-gray-300 hover:text-white hover:border-gray-500",
+                        )}
+                      >
+                        {useVi ? NOTE_VI[i] : note}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">{"Loại thang âm"}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {Object.entries(SCALES).map(([key, { label }]) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveScaleType(key)}
+                        className={cn(
+                          "px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 border",
+                          activeScaleType === key
+                            ? "bg-emerald-600 border-emerald-500 text-white"
+                            : "bg-gray-800 border-gray-700 text-gray-300 hover:text-white hover:border-gray-500",
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {activeScaleRoot !== null && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs text-gray-500">{"Các nốt:"}</span>
+                    {SCALES[activeScaleType].intervals.map((interval) => {
+                      const nc = (activeScaleRoot + interval) % 12;
+                      return (
+                        <span
+                          key={interval}
+                          className={cn(
+                            "px-2 py-0.5 rounded-md text-xs font-bold border",
+                            nc === activeScaleRoot
+                              ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                              : "bg-emerald-900/30 border-emerald-700/40 text-emerald-400",
+                          )}
+                        >
+                          {useVi ? NOTE_VI[nc] : NOTE_EN[nc]}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                {activeScaleRoot === null && (
+                  <p className="text-xs text-gray-600 text-center py-2">
+                    {"Chọn nốt gốc để hiển thị thang âm trên cần đàn"}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">

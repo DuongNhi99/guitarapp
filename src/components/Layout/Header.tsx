@@ -4,27 +4,29 @@ import {
   Search,
   Menu,
   X,
-  Music2,
+  //   Music2,
   Guitar,
-  BookOpen,
-  Radio,
+  //   BookOpen,
+  //   Radio,
   FileMusic,
   Sliders,
   Sun,
   Moon,
   Image,
+  Coffee,
 } from "lucide-react";
 import { cn } from "../../utils";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const navItems = [
-  { label: "Bài hát", href: "/songs", icon: Music2 },
-  { label: "Hình hợp âm", href: "/song-images", icon: Image },
+  //   { label: "Bài hát", href: "/songs", icon: Music2 },
+  { label: "Bài hát", href: "/song-images", icon: Image },
   { label: "Bản nhạc", href: "/sheets", icon: FileMusic },
-  { label: "Hợp âm", href: "/chords", icon: Guitar },
+  //   { label: "Hợp âm", href: "/chords", icon: Guitar },
   { label: "Guitar", href: "/guitar", icon: Sliders },
-  { label: "Điệu", href: "/rhythms", icon: Radio },
-  { label: "Thể loại", href: "/genres", icon: BookOpen },
+  //   { label: "Điệu", href: "/rhythms", icon: Radio },
+  //   { label: "Thể loại", href: "/genres", icon: BookOpen },
+  { label: "Buy me a coffee!", href: "/donate", icon: Coffee },
 ];
 
 export default function Header() {

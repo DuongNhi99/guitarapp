@@ -1,23 +1,27 @@
 import { useState } from "react";
-import { Coffee, Heart, Copy, Check, Star, Music2, Sparkles } from "lucide-react";
+import { Coffee, Copy, Check, Star, Music2, Sparkles } from "lucide-react";
 
-const TIERS = [
-  { emoji: "☕", label: "1 ly cà phê", amount: 25000, desc: "Cảm ơn bạn rất nhiều!" },
-  { emoji: "☕☕", label: "2 ly cà phê", amount: 50000, desc: "Bạn thật tuyệt vời!" },
-  { emoji: "🍱", label: "Bữa trưa", amount: 100000, desc: "Bạn là người hào phóng nhất!" },
-  { emoji: "🎸", label: "Cây đàn nhỏ", amount: 200000, desc: "Bạn là anh hùng của chúng tôi!" },
-];
+// const TIERS = [
+//   { emoji: "☕", label: "1 ly cà phê", amount: 25000, desc: "Cảm ơn bạn rất nhiều!" },
+//   { emoji: "☕☕", label: "2 ly cà phê", amount: 50000, desc: "Bạn thật tuyệt vời!" },
+//   { emoji: "🍱", label: "Bữa trưa", amount: 100000, desc: "Bạn là người hào phóng nhất!" },
+//   { emoji: "🎸", label: "Cây đàn nhỏ", amount: 200000, desc: "Bạn là anh hùng của chúng tôi!" },
+// ];
 
 const SUPPORTERS = [
   { name: "Minh Tú", amount: "50k", message: "Keep up the great work! 🎸" },
-  { name: "Lan Anh", amount: "25k", message: "Ứng dụng rất hay, cảm ơn nhé!" },
+  { name: "Lan Anh", amount: "200k", message: "Ứng dụng rất hay, cảm ơn nhé!" },
   { name: "Hoàng Nam", amount: "100k", message: "Guitar forever! ❤️" },
-  { name: "Thảo Vy", amount: "25k", message: "Học guitar nhờ app này quá tốt 🙏" },
+  {
+    name: "Thảo Vy",
+    amount: "500k",
+    message: "Học guitar nhờ app này quá tốt 🙏",
+  },
 ];
 
 export default function DonatePage() {
   const [copied, setCopied] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<number | null>(1);
+  //   const [selectedTier, setSelectedTier] = useState<number | null>(1);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -51,14 +55,15 @@ export default function DonatePage() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Mua cho mình{" "}
+            Buy me{" "}
             <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              một ly cà phê
+              a coffee, please!
             </span>
           </h1>
           <p className="text-gray-400 text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
-            Abbaguitar là dự án phi lợi nhuận, được xây dựng với tình yêu âm nhạc.
-            Sự ủng hộ của bạn giúp chúng tôi duy trì và phát triển nền tảng này.
+            Abbaguitar là dự án phi lợi nhuận, được xây dựng với tình yêu âm
+            nhạc. Sự ủng hộ của bạn giúp chúng tôi duy trì và phát triển nền
+            tảng này.
           </p>
 
           {/* Stats */}
@@ -91,7 +96,9 @@ export default function DonatePage() {
                 <div className="w-7 h-7 bg-[#ae2070] rounded-lg flex items-center justify-center">
                   <span className="text-white text-xs font-bold">M</span>
                 </div>
-                <span className="text-white font-semibold">Thanh toán qua MoMo</span>
+                <span className="text-white font-semibold">
+                  Thanh toán qua MoMo
+                </span>
               </div>
 
               {/* QR Code */}
@@ -116,8 +123,12 @@ export default function DonatePage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between bg-gray-800/60 rounded-xl px-4 py-3">
                   <div>
-                    <div className="text-xs text-gray-500 mb-0.5">Tên tài khoản</div>
-                    <div className="text-white text-sm font-medium">Abbaguitar</div>
+                    <div className="text-xs text-gray-500 mb-0.5">
+                      Tên tài khoản
+                    </div>
+                    <div className="text-white text-sm font-medium">
+                      Abbaguitar
+                    </div>
                   </div>
                   <button
                     onClick={() => handleCopy("Abbaguitar", "name")}
@@ -145,8 +156,7 @@ export default function DonatePage() {
 
           {/* Right: tier selection + message */}
           <div className="space-y-4">
-            {/* Tier picker */}
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+            {/* <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
               <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
                 <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
                 Chọn mức ủng hộ
@@ -204,7 +214,7 @@ export default function DonatePage() {
                   </button>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Recent supporters */}
             <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
@@ -220,12 +230,16 @@ export default function DonatePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">{s.name}</span>
+                        <span className="text-white text-sm font-medium">
+                          {s.name}
+                        </span>
                         <span className="text-amber-400 text-xs font-medium bg-amber-500/10 px-2 py-0.5 rounded-full">
                           {s.amount}
                         </span>
                       </div>
-                      <p className="text-gray-400 text-xs mt-0.5 truncate">{s.message}</p>
+                      <p className="text-gray-400 text-xs mt-0.5 truncate">
+                        {s.message}
+                      </p>
                     </div>
                   </div>
                 ))}
