@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import {
   X, ChevronLeft, ChevronRight, Music2, Upload, Loader2,
   Search, ImageIcon, Pencil, Trash2, AlertCircle, ZoomIn,
+  Folder, FolderPlus, ArrowLeft, CheckCircle2,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { SheetImage } from "../lib/supabase";
@@ -12,14 +13,12 @@ import { cn } from "../utils";
 const songBySlug = Object.fromEntries(SONGS.map((s) => [s.slug, s]));
 const PER_PAGE = 20;
 
-// Derive the storage object path from a public image URL.
 function storagePath(imageUrl: string): string | null {
   const marker = "/storage/v1/object/public/sheets/";
   const idx = imageUrl.indexOf(marker);
   return idx === -1 ? null : imageUrl.slice(idx + marker.length);
 }
 
-// Strip Vietnamese diacritics so search matches the DB's title_norm column.
 function normalizeText(s: string): string {
   return s
     .toLowerCase()
@@ -28,11 +27,31 @@ function normalizeText(s: string): string {
     .replace(/đ/g, "d");
 }
 
+interface FolderInfo {
+  name: string; // "" = uncategorized (folder IS NULL in DB)
+  count: number;
+  coverUrl: string;
+}
+
 export default function SongImagesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // null = folder grid view, "" = uncategorized, "FolderName" = named folder
+  const currentFolder = searchParams.get("folder");
+
+  // Folder grid state
+  const [folders, setFolders] = useState<FolderInfo[]>([]);
+  const [foldersLoading, setFoldersLoading] = useState(false);
+  const [newFolderModal, setNewFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderCreated, setNewFolderCreated] = useState(false);
+
+  // Image list state
   const [images, setImages] = useState<SheetImage[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
@@ -53,7 +72,19 @@ export default function SongImagesPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
-  // Debounce the search box and reset to page 1 on change.
+  // Reset image list when navigating between folders (during render, not in effect)
+  const [prevFolder, setPrevFolder] = useState(currentFolder);
+  if (prevFolder !== currentFolder) {
+    setPrevFolder(currentFolder);
+    setPage(1);
+    setQuery("");
+    setDebouncedQuery("");
+    setImages([]);
+    setTotal(0);
+    setSelectedIdx(null);
+  }
+
+  // Debounce search
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedQuery(query); setPage(1); }, 300);
     return () => clearTimeout(t);
@@ -61,7 +92,44 @@ export default function SongImagesPage() {
 
   const reload = useCallback(() => setRefreshKey((k) => k + 1), []);
 
+  // Fetch folder list when in grid mode
   useEffect(() => {
+    if (currentFolder !== null || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      if (!cancelled) setFoldersLoading(true);
+      try {
+        const { data, error: err } = await supabase
+          .from("sheet_images")
+          .select("folder, image_url")
+          .order("created_at", { ascending: false });
+        if (cancelled) return;
+        if (err) throw err;
+        const map = new Map<string, FolderInfo>();
+        for (const row of data ?? []) {
+          const name = row.folder ?? "All";
+          if (!map.has(name)) map.set(name, { name, count: 0, coverUrl: row.image_url });
+          map.get(name)!.count++;
+        }
+        if (!cancelled) setFolders(
+          Array.from(map.values()).sort((a, b) => {
+            if (a.name === "All" && b.name !== "All") return -1;
+            if (a.name !== "All" && b.name === "All") return 1;
+            return a.name.localeCompare(b.name);
+          })
+        );
+      } catch {
+        // silently ignore
+      } finally {
+        if (!cancelled) setFoldersLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentFolder, refreshKey]);
+
+  // Fetch images when inside a folder
+  useEffect(() => {
+    if (currentFolder === null) return;
     let cancelled = false;
     const client = supabase;
     async function run() {
@@ -72,8 +140,7 @@ export default function SongImagesPage() {
         const from = (page - 1) * PER_PAGE;
         const to = from + PER_PAGE - 1;
         const term = debouncedQuery.trim();
-        // Search the normalized column (accent-insensitive) when present, and
-        // fall back to the plain title if the migration hasn't been applied yet.
+
         const buildQuery = (col: "title_norm" | "title", value: string) => {
           let q = client
             .from("sheet_images")
@@ -81,6 +148,8 @@ export default function SongImagesPage() {
             .order("title", { ascending: true })
             .range(from, to);
           if (value) q = q.ilike(col, `%${value}%`);
+          if (currentFolder === "All") q = q.or("folder.is.null,folder.eq.All");
+          else q = q.eq("folder", currentFolder);
           return q;
         };
 
@@ -103,7 +172,7 @@ export default function SongImagesPage() {
     }
     run();
     return () => { cancelled = true; };
-  }, [page, debouncedQuery, refreshKey]);
+  }, [page, debouncedQuery, refreshKey, currentFolder]);
 
   const selected = selectedIdx !== null ? images[selectedIdx] : null;
 
@@ -128,7 +197,6 @@ export default function SongImagesPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [selectedIdx, prev, next, close]);
 
-  // Lightbox swipe (mobile).
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
   }
@@ -172,7 +240,6 @@ export default function SongImagesPage() {
     setSaving(true);
     setEditError(null);
     try {
-      // Remove the storage object first (best-effort), then the DB record.
       const path = storagePath(editing.image_url);
       if (path) await supabase.storage.from("sheets").remove([path]);
 
@@ -184,7 +251,6 @@ export default function SongImagesPage() {
 
       setEditing(null);
       setConfirmDelete(false);
-      // Step back a page if we just removed the only item on a non-first page.
       if (images.length === 1 && page > 1) setPage((p) => p - 1);
       else reload();
     } catch (e) {
@@ -194,18 +260,50 @@ export default function SongImagesPage() {
     }
   }
 
+  function confirmFolderName() {
+    if (!newFolderName.trim()) return;
+    setNewFolderCreated(true);
+  }
+
+  function closeNewFolderModal() {
+    setNewFolderModal(false);
+    setNewFolderName("");
+    setNewFolderCreated(false);
+  }
+
+  const uploadLink = currentFolder !== null
+    ? `/song-images/upload?folder=${encodeURIComponent(currentFolder)}`
+    : "/song-images/upload";
+
+  const folderDisplayName = currentFolder ?? "";
+
   return (
     <div className="min-h-screen bg-gray-950 pb-24">
 
-      {/* Sticky toolbar (sits under the app header at h-16) */}
+      {/* Sticky toolbar */}
       <div className="sticky top-16 z-30 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/60">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Hình Hợp Âm</h1>
-              <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
-                {loading ? "Đang tải..." : `${total} bài hát`}
-              </p>
+            <div className="flex items-center gap-2 min-w-0">
+              {currentFolder !== null && (
+                <button
+                  onClick={() => setSearchParams({})}
+                  aria-label="Quay lại"
+                  className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4 text-gray-300" />
+                </button>
+              )}
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight truncate">
+                  {currentFolder !== null ? folderDisplayName : "Hình Hợp Âm"}
+                </h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+                  {currentFolder === null
+                    ? (foldersLoading ? "Đang tải..." : `${folders.length} thư mục`)
+                    : (loading ? "Đang tải..." : `${total} bài hát`)}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
@@ -216,8 +314,18 @@ export default function SongImagesPage() {
                 <Music2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Danh sách</span>
               </Link>
+              {currentFolder === null && (
+                <button
+                  onClick={() => { setNewFolderName(""); setNewFolderModal(true); }}
+                  aria-label="Tạo thư mục"
+                  className="flex items-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-sm font-medium bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 active:scale-95 transition-all"
+                >
+                  <FolderPlus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Tạo thư mục</span>
+                </button>
+              )}
               <Link
-                to="/song-images/upload"
+                to={uploadLink}
                 aria-label="Thêm hình"
                 className="flex items-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white active:scale-95 transition-all shadow-lg shadow-purple-900/30"
               >
@@ -227,158 +335,323 @@ export default function SongImagesPage() {
             </div>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm bài hát..."
-              className="w-full h-11 pl-10 pr-10 rounded-xl bg-gray-900 border border-gray-800 text-white text-base sm:text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20 transition-all"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                aria-label="Xóa tìm kiếm"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all"
-              >
-                <X className="w-3.5 h-3.5 text-gray-400" />
-              </button>
-            )}
-          </div>
+          {/* Search — only shown inside a folder */}
+          {currentFolder !== null && (
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Tìm bài hát..."
+                className="w-full h-11 pl-10 pr-10 rounded-xl bg-gray-900 border border-gray-800 text-white text-base sm:text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  aria-label="Xóa tìm kiếm"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all"
+                >
+                  <X className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
 
-        {/* Loading skeleton */}
-        {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-2 sm:p-2.5 rounded-2xl bg-gray-900/60 border border-gray-800/60 animate-pulse">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-800 flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-gray-800 rounded w-2/3" />
-                  <div className="h-2.5 bg-gray-800/70 rounded w-1/4" />
+        {/* ---- FOLDER GRID MODE ---- */}
+        {currentFolder === null && (
+          <>
+            {foldersLoading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl bg-gray-900/60 border border-gray-800/60 overflow-hidden animate-pulse">
+                    <div className="h-28 sm:h-36 bg-gray-800" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-3.5 bg-gray-800 rounded w-3/4" />
+                      <div className="h-2.5 bg-gray-800/70 rounded w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!foldersLoading && !supabase && (
+              <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
+                <Music2 className="w-12 h-12 text-gray-700 mb-3" />
+                <p className="text-gray-400 font-medium mb-1">Chưa kết nối Supabase</p>
+                <p className="text-gray-600 text-sm px-4">
+                  Thêm <code className="text-purple-400">VITE_SUPABASE_URL</code> và{" "}
+                  <code className="text-purple-400">VITE_SUPABASE_ANON_KEY</code> vào <code className="text-gray-400">.env.local</code>
+                </p>
+              </div>
+            )}
+
+            {!foldersLoading && supabase && folders.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center mb-4">
+                  <Folder className="w-7 h-7 text-gray-600" />
+                </div>
+                <p className="text-gray-400 text-sm mb-5">Chưa có thư mục nào.</p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <button
+                    onClick={() => { setNewFolderName(""); setNewFolderModal(true); }}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 text-sm font-medium transition-all active:scale-95"
+                  >
+                    <FolderPlus className="w-4 h-4" /> Tạo thư mục
+                  </button>
+                  <Link
+                    to="/song-images/upload"
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all active:scale-95"
+                  >
+                    <Upload className="w-4 h-4" /> Thêm hình đầu tiên
+                  </Link>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Not configured */}
-        {!loading && !supabase && (
-          <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
-            <Music2 className="w-12 h-12 text-gray-700 mb-3" />
-            <p className="text-gray-400 font-medium mb-1">Chưa kết nối Supabase</p>
-            <p className="text-gray-600 text-sm px-4">
-              Thêm <code className="text-purple-400">VITE_SUPABASE_URL</code> và{" "}
-              <code className="text-purple-400">VITE_SUPABASE_ANON_KEY</code> vào <code className="text-gray-400">.env.local</code>
-            </p>
-          </div>
-        )}
-
-        {/* Error */}
-        {!loading && supabase && error && (
-          <div className="flex items-center gap-2 p-4 rounded-2xl bg-red-950/40 border border-red-800/50 text-red-300 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </div>
-        )}
-
-        {/* Empty */}
-        {!loading && supabase && !error && images.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center mb-4">
-              {debouncedQuery ? <Search className="w-7 h-7 text-gray-600" /> : <ImageIcon className="w-7 h-7 text-gray-600" />}
-            </div>
-            <p className="text-gray-400 text-sm mb-5">
-              {debouncedQuery ? "Không tìm thấy bài hát nào." : "Chưa có hình hợp âm nào."}
-            </p>
-            {!debouncedQuery && (
-              <Link
-                to="/song-images/upload"
-                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all active:scale-95"
-              >
-                <Upload className="w-4 h-4" /> Thêm hình đầu tiên
-              </Link>
             )}
-          </div>
-        )}
 
-        {/* List — single column on mobile, two columns on larger screens */}
-        {!loading && !error && images.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            {images.map((img, i) => {
-              const hasChords = !!songBySlug[img.slug];
-              return (
-                <div
-                  key={img.id}
-                  className="group flex items-center gap-3 p-2 sm:p-2.5 rounded-2xl bg-gray-900/80 border border-gray-800 hover:border-purple-500/50 hover:bg-gray-800/50 active:scale-[0.99] transition-all duration-150"
-                >
+            {!foldersLoading && supabase && folders.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {folders.map((f) => (
                   <button
-                    onClick={() => { setSelectedIdx(i); setZoom(false); }}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    key={f.name}
+                    onClick={() => setSearchParams({ folder: f.name })}
+                    className="group text-left rounded-2xl bg-gray-900/80 border border-gray-800 hover:border-purple-500/50 hover:bg-gray-800/50 overflow-hidden transition-all duration-150 active:scale-[0.98]"
                   >
-                    <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gray-800 flex-shrink-0 ring-1 ring-white/5">
-                      <img
-                        src={img.image_url}
-                        alt={img.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors">
-                        <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm sm:text-base font-semibold leading-snug line-clamp-2">{img.title}</p>
-                      {hasChords && (
-                        <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-purple-300/90">
-                          <Music2 className="w-3 h-3" /> Có hợp âm
-                        </span>
+                    <div className="relative h-28 sm:h-36 overflow-hidden bg-gray-800">
+                      {f.coverUrl ? (
+                        <img
+                          src={f.coverUrl}
+                          alt={f.name || "Chưa phân loại"}
+                          loading="lazy"
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Folder className="w-10 h-10 text-gray-600" />
+                        </div>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    </div>
+                    <div className="px-3 py-2.5">
+                      <p className="text-white font-semibold text-sm truncate">
+                        {f.name || "Chưa phân loại"}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-0.5">{f.count} hình</p>
                     </div>
                   </button>
-                  <button
-                    onClick={() => openEdit(img)}
-                    aria-label="Sửa"
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 active:scale-90 transition-all flex-shrink-0"
-                  >
-                    <Pencil className="w-[18px] h-[18px]" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
-        {/* Pagination */}
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex items-center justify-between sm:justify-center gap-3 mt-6">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="flex items-center gap-1 h-11 px-4 rounded-xl bg-gray-900 border border-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronLeft className="w-4 h-4" /> Trước
-            </button>
-            <span className="text-gray-400 text-sm font-medium tabular-nums">
-              {page} <span className="text-gray-600">/ {totalPages}</span>
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="flex items-center gap-1 h-11 px-4 rounded-xl bg-gray-900 border border-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              Sau <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+        {/* ---- IMAGE LIST MODE (inside a folder) ---- */}
+        {currentFolder !== null && (
+          <>
+            {loading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2 sm:p-2.5 rounded-2xl bg-gray-900/60 border border-gray-800/60 animate-pulse">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-800 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3.5 bg-gray-800 rounded w-2/3" />
+                      <div className="h-2.5 bg-gray-800/70 rounded w-1/4" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && !supabase && (
+              <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
+                <Music2 className="w-12 h-12 text-gray-700 mb-3" />
+                <p className="text-gray-400 font-medium mb-1">Chưa kết nối Supabase</p>
+                <p className="text-gray-600 text-sm px-4">
+                  Thêm <code className="text-purple-400">VITE_SUPABASE_URL</code> và{" "}
+                  <code className="text-purple-400">VITE_SUPABASE_ANON_KEY</code> vào <code className="text-gray-400">.env.local</code>
+                </p>
+              </div>
+            )}
+
+            {!loading && supabase && error && (
+              <div className="flex items-center gap-2 p-4 rounded-2xl bg-red-950/40 border border-red-800/50 text-red-300 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            {!loading && supabase && !error && images.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center mb-4">
+                  {debouncedQuery ? <Search className="w-7 h-7 text-gray-600" /> : <ImageIcon className="w-7 h-7 text-gray-600" />}
+                </div>
+                <p className="text-gray-400 text-sm mb-5">
+                  {debouncedQuery ? "Không tìm thấy bài hát nào." : "Thư mục này chưa có hình."}
+                </p>
+                {!debouncedQuery && (
+                  <Link
+                    to={uploadLink}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all active:scale-95"
+                  >
+                    <Upload className="w-4 h-4" /> Thêm hình vào thư mục
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {!loading && !error && images.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                {images.map((img, i) => {
+                  const hasChords = !!songBySlug[img.slug];
+                  return (
+                    <div
+                      key={img.id}
+                      className="group flex items-center gap-3 p-2 sm:p-2.5 rounded-2xl bg-gray-900/80 border border-gray-800 hover:border-purple-500/50 hover:bg-gray-800/50 active:scale-[0.99] transition-all duration-150"
+                    >
+                      <button
+                        onClick={() => { setSelectedIdx(i); setZoom(false); }}
+                        className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                      >
+                        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gray-800 flex-shrink-0 ring-1 ring-white/5">
+                          <img
+                            src={img.image_url}
+                            alt={img.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors">
+                            <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-sm sm:text-base font-semibold leading-snug line-clamp-2">{img.title}</p>
+                          {hasChords && (
+                            <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-purple-300/90">
+                              <Music2 className="w-3 h-3" /> Có hợp âm
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => openEdit(img)}
+                        aria-label="Sửa"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 active:scale-90 transition-all flex-shrink-0"
+                      >
+                        <Pencil className="w-[18px] h-[18px]" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!loading && !error && totalPages > 1 && (
+              <div className="flex items-center justify-between sm:justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="flex items-center gap-1 h-11 px-4 rounded-xl bg-gray-900 border border-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Trước
+                </button>
+                <span className="text-gray-400 text-sm font-medium tabular-nums">
+                  {page} <span className="text-gray-600">/ {totalPages}</span>
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="flex items-center gap-1 h-11 px-4 rounded-xl bg-gray-900 border border-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  Sau <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Edit modal — bottom sheet on mobile, centered on desktop */}
+      {/* New Folder Modal */}
+      {newFolderModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
+          onClick={closeNewFolderModal}
+        >
+          <div
+            className="w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl bg-gray-900 border border-gray-800 p-5 pb-7 sm:pb-5 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sm:hidden w-10 h-1 rounded-full bg-gray-700 mx-auto mb-4" />
+
+            {/* Step 1 — enter name */}
+            {!newFolderCreated && (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-white font-bold text-lg">Thư mục mới</h2>
+                  <button onClick={closeNewFolderModal} aria-label="Đóng" className="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all">
+                    <X className="w-4 h-4 text-gray-400" />
+                  </button>
+                </div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Tên thư mục</label>
+                <input
+                  type="text"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && confirmFolderName()}
+                  autoFocus
+                  placeholder="VD: Nhạc trẻ, Bolero, Rock..."
+                  className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-base sm:text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all mb-4"
+                />
+                <div className="flex gap-3">
+                  <button onClick={closeNewFolderModal} className="flex-1 h-12 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm font-medium transition-all">
+                    Hủy
+                  </button>
+                  <button
+                    onClick={confirmFolderName}
+                    disabled={!newFolderName.trim()}
+                    className="flex-1 h-12 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-all"
+                  >
+                    Tạo thư mục
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Step 2 — success, choose action */}
+            {newFolderCreated && (
+              <>
+                <div className="flex flex-col items-center text-center py-2 mb-5">
+                  <CheckCircle2 className="w-12 h-12 text-green-400 mb-3" />
+                  <p className="text-white font-bold text-base">Tạo thư mục thành công!</p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Thư mục <span className="text-purple-300 font-medium">"{newFolderName}"</span> đã sẵn sàng.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { closeNewFolderModal(); setSearchParams({ folder: newFolderName.trim() }); }}
+                    className="flex-1 h-12 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm font-medium transition-all"
+                  >
+                    Xem thư mục
+                  </button>
+                  <button
+                    onClick={() => { closeNewFolderModal(); navigate(`/song-images/upload?folder=${encodeURIComponent(newFolderName.trim())}`); }}
+                    className="flex-1 h-12 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" /> Thêm hình ngay
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit modal */}
       {editing && (
         <div
           className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
@@ -388,7 +661,6 @@ export default function SongImagesPage() {
             className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl bg-gray-900 border border-gray-800 p-5 pb-7 sm:pb-5 max-h-[90vh] overflow-y-auto animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* grab handle (mobile) */}
             <div className="sm:hidden w-10 h-1 rounded-full bg-gray-700 mx-auto mb-4" />
 
             <div className="flex items-center justify-between mb-4">
@@ -524,7 +796,7 @@ export default function SongImagesPage() {
             />
           </div>
 
-          {/* Prev / Next (desktop; mobile uses swipe + thumbnails) */}
+          {/* Prev / Next (desktop) */}
           <button
             onClick={(e) => { e.stopPropagation(); prev(); }}
             disabled={selectedIdx === 0}

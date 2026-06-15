@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Upload, X, CheckCircle2, AlertCircle, ImageIcon, ArrowLeft, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Upload, X, CheckCircle2, AlertCircle, ImageIcon, ArrowLeft, Loader2, Folder } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { cn } from "../utils";
 
@@ -17,16 +17,34 @@ function toSlug(title: string): string {
 
 export default function UploadImagePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
+  const [folder, setFolder] = useState(searchParams.get("folder") ?? "All");
+  const [existingFolders, setExistingFolders] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+    (async () => {
+      const { data } = await supabase
+        .from("sheet_images")
+        .select("folder")
+        .not("folder", "is", null)
+        .order("folder");
+      if (data) {
+        const unique = [...new Set(data.map((r) => r.folder).filter(Boolean))] as string[];
+        setExistingFolders(unique);
+      }
+    })();
+  }, []);
 
   function handleTitleChange(val: string) {
     setTitle(val);
@@ -47,7 +65,7 @@ export default function UploadImagePage() {
     if (f && f.type.startsWith("image/")) handleFileChange(f);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!file || !title.trim() || !slug.trim()) { setError("Vui lòng điền đầy đủ thông tin."); return; }
     if (!supabase) { setError("Chưa kết nối Supabase."); return; }
@@ -57,7 +75,10 @@ export default function UploadImagePage() {
 
     try {
       const ext = (file.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
-      const filename = `${slug.trim()}.${ext}`;
+      // Storage keys must be ASCII-safe — slugify the folder name for the path.
+      const folderSlug = toSlug(folder.trim());
+      const folderPrefix = folderSlug ? `${folderSlug}/` : "";
+      const filename = `${folderPrefix}${slug.trim()}.${ext}`;
 
       const { error: upErr } = await supabase.storage
         .from("sheets")
@@ -66,13 +87,30 @@ export default function UploadImagePage() {
 
       const { data: pub } = supabase.storage.from("sheets").getPublicUrl(filename);
 
-      const { error: dbErr } = await supabase
+      let { error: dbErr } = await supabase
         .from("sheet_images")
-        .upsert({ title: title.trim(), slug: slug.trim(), image_url: pub.publicUrl }, { onConflict: "slug" });
+        .upsert(
+          { title: title.trim(), slug: slug.trim(), image_url: pub.publicUrl, folder: folder.trim() || null },
+          { onConflict: "slug" }
+        );
+
+      // If the folder column doesn't exist yet (schema cache not updated), retry without it.
+      if (dbErr?.code === "PGRST204") {
+        ({ error: dbErr } = await supabase
+          .from("sheet_images")
+          .upsert(
+            { title: title.trim(), slug: slug.trim(), image_url: pub.publicUrl },
+            { onConflict: "slug" }
+          ));
+      }
+
       if (dbErr) throw new Error(dbErr.message);
 
       setSuccess(true);
-      setTimeout(() => navigate("/song-images"), 1500);
+      const returnTo = folder.trim()
+        ? `/song-images?folder=${encodeURIComponent(folder.trim())}`
+        : "/song-images";
+      setTimeout(() => navigate(returnTo), 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Lỗi không xác định.");
     } finally {
@@ -82,9 +120,14 @@ export default function UploadImagePage() {
 
   function reset() {
     setTitle(""); setSlug(""); setSlugEdited(false);
+    setFolder(searchParams.get("folder") ?? "All");
     setFile(null); setPreview(null); setError(null); setSuccess(false);
     if (fileRef.current) fileRef.current.value = "";
   }
+
+  const backLink = folder.trim()
+    ? `/song-images?folder=${encodeURIComponent(folder.trim())}`
+    : "/song-images";
 
   if (success) {
     return (
@@ -92,7 +135,7 @@ export default function UploadImagePage() {
         <div className="text-center">
           <CheckCircle2 className="w-14 h-14 text-green-400 mx-auto mb-4" />
           <p className="text-white text-lg font-bold">Tải lên thành công!</p>
-          <p className="text-gray-500 text-sm mt-1">Đang chuyển về trang hình hợp âm...</p>
+          <p className="text-gray-500 text-sm mt-1">Đang chuyển về thư mục...</p>
         </div>
       </div>
     );
@@ -105,14 +148,16 @@ export default function UploadImagePage() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <Link
-            to="/song-images"
+            to={backLink}
             className="w-9 h-9 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 transition-all"
           >
             <ArrowLeft className="w-4 h-4 text-gray-300" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Thêm Hình Hợp Âm</h1>
-            <p className="text-gray-500 text-xs mt-0.5">Tải ảnh hợp âm lên thư viện</p>
+            <p className="text-gray-500 text-xs mt-0.5">
+              {folder.trim() ? `Thư mục: ${folder.trim()}` : "Tải ảnh hợp âm lên thư viện"}
+            </p>
           </div>
         </div>
 
@@ -179,6 +224,27 @@ export default function UploadImagePage() {
               placeholder="ai-chung-tinh-duoc-mai"
               className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-purple-300 placeholder-gray-600 text-sm font-mono focus:outline-none focus:border-purple-500 transition-colors"
             />
+          </div>
+
+          {/* Folder */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">
+              <span className="inline-flex items-center gap-1.5">
+                <Folder className="w-3.5 h-3.5" /> Thư mục
+                <span className="text-gray-600 font-normal">(tùy chọn)</span>
+              </span>
+            </label>
+            <input
+              type="text"
+              list="folder-suggestions"
+              value={folder}
+              onChange={(e) => setFolder(e.target.value)}
+              placeholder="Chọn hoặc nhập tên thư mục..."
+              className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            />
+            <datalist id="folder-suggestions">
+              {existingFolders.map((f) => <option key={f} value={f} />)}
+            </datalist>
           </div>
 
           {/* Error */}

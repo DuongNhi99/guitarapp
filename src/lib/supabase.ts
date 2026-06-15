@@ -10,6 +10,7 @@ export interface SheetImage {
   title: string;
   slug: string;
   image_url: string;
+  folder: string | null;
   song_id: number | null;
   created_at: string;
 }
