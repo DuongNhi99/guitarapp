@@ -176,6 +176,7 @@ function GuitarSection({
   isPlaying,
   onPlay,
   activeNote,
+  playSequenceKeys,
 }: {
   label: string;
   start: number;
@@ -186,6 +187,7 @@ function GuitarSection({
   isPlaying?: boolean;
   onPlay?: () => void;
   activeNote?: { si: number; fret: number } | null;
+  playSequenceKeys?: Set<string> | null;
 }) {
   const frets = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   const isOpenSection = start === 0;
@@ -275,7 +277,8 @@ function GuitarSection({
               {isOpenSection && (() => {
                 const midi = openMidi;
                 const nc = noteClass(midi);
-                const status = nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
+                const inSeq = !playSequenceKeys || playSequenceKeys.has(`${si},0`);
+                const status = !inSeq ? null : nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
                 const isActive = activeNote?.si === si && activeNote?.fret === 0;
                 return (
                   <div className="w-8 flex-shrink-0 h-10 flex items-center justify-center relative">
@@ -323,7 +326,8 @@ function GuitarSection({
               {frets.filter((f) => f > 0).map((f, fi) => {
                 const midi = openMidi + f;
                 const nc = noteClass(midi);
-                const status = nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
+                const inSeq = !playSequenceKeys || playSequenceKeys.has(`${si},${f}`);
+                const status = !inSeq ? null : nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
                 const isActive = activeNote?.si === si && activeNote?.fret === f;
                 const isInlay =
                   (isSingleDot && INLAY_FRETS.has(f) && f !== DOUBLE_DOT) ||
@@ -420,6 +424,7 @@ export default function ScaleSearchPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingSection, setPlayingSection] = useState<string | null>(null);
   const [activeNote, setActiveNote] = useState<{ si: number; fret: number } | null>(null);
+  const [playSequenceKeys, setPlaySequenceKeys] = useState<Set<string> | null>(null);
   const [useVi, setUseVi] = useState(true);
 
   const audioRef = useRef<AudioContext | null>(null);
@@ -463,6 +468,7 @@ export default function ScaleSearchPage() {
     setIsPlaying(false);
     setPlayingSection(null);
     setActiveNote(null);
+    setPlaySequenceKeys(null);
   }
 
   function playScale() {
@@ -486,14 +492,19 @@ export default function ScaleSearchPage() {
     stopAll();
     setPlayingSection(label);
     const ctx = getCtx();
-    const notes: { si: number; fret: number; midi: number }[] = [];
+    const allNotes: { si: number; fret: number; midi: number }[] = [];
     for (const si of [0, 1, 2, 3, 4, 5]) {
       const openMidi = OPEN_MIDI[si];
       for (let f = start; f <= end; f++) {
         if (scaleNoteClasses.has(noteClass(openMidi + f)))
-          notes.push({ si, fret: f, midi: openMidi + f });
+          allNotes.push({ si, fret: f, midi: openMidi + f });
       }
     }
+    // Sort by pitch, then start from the first root note occurrence
+    allNotes.sort((a, b) => a.midi - b.midi);
+    const firstRootIdx = allNotes.findIndex((n) => noteClass(n.midi) === rootNote);
+    const notes = firstRootIdx >= 0 ? allNotes.slice(firstRootIdx) : allNotes;
+    setPlaySequenceKeys(new Set(notes.map((n) => `${n.si},${n.fret}`)));
     notes.forEach(({ si, fret, midi }, idx) => {
       const t = setTimeout(() => {
         pluck(midiToFreq(midi), ctx, 0.6);
@@ -677,6 +688,7 @@ export default function ScaleSearchPage() {
                   isPlaying={playingSection === s.label}
                   onPlay={() => playSection(s.label, s.start, s.end)}
                   activeNote={playingSection === s.label ? activeNote : null}
+                  playSequenceKeys={playingSection === s.label ? playSequenceKeys : null}
                 />
               ))}
             </div>
