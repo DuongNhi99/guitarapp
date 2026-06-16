@@ -15,6 +15,7 @@ import {
   Image,
   Coffee,
   Radio,
+  Music,
 } from "lucide-react";
 import { cn } from "../../utils";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -26,6 +27,7 @@ const navItems = [
   //   { label: "Hợp âm", href: "/chords", icon: Guitar },
   { label: "Guitar", href: "/guitar", icon: Sliders },
   { label: "Đệm hợp âm", href: "/accompaniment", icon: Radio },
+  { label: "Âm giai", href: "/scale-finder", icon: Music },
   //   { label: "Thể loại", href: "/genres", icon: BookOpen },
   { label: "Buy me a coffee!", href: "/donate", icon: Coffee },
 ];

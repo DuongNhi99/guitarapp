@@ -16,6 +16,7 @@ import SongImagesPage from "./pages/SongImagesPage";
 import UploadImagePage from "./pages/UploadImagePage";
 import DonatePage from "./pages/DonatePage";
 import ChordAccompanimentPage from "./pages/ChordAccompanimentPage";
+import ScaleSearchPage from "./pages/ScaleSearchPage";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/song-images/upload" element={<UploadImagePage />} />
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/accompaniment" element={<ChordAccompanimentPage />} />
+            <Route path="/scale-finder" element={<ScaleSearchPage />} />
             {/* Fallback */}
             <Route path="*" element={<GuitarPage />} />
           </Route>
