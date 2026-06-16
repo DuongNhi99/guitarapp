@@ -14,6 +14,7 @@ import {
   Moon,
   Image,
   Coffee,
+  Radio,
 } from "lucide-react";
 import { cn } from "../../utils";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -24,7 +25,7 @@ const navItems = [
   { label: "Bản nhạc", href: "/sheets", icon: FileMusic },
   //   { label: "Hợp âm", href: "/chords", icon: Guitar },
   { label: "Guitar", href: "/guitar", icon: Sliders },
-  //   { label: "Điệu", href: "/rhythms", icon: Radio },
+  { label: "Đệm hợp âm", href: "/accompaniment", icon: Radio },
   //   { label: "Thể loại", href: "/genres", icon: BookOpen },
   { label: "Buy me a coffee!", href: "/donate", icon: Coffee },
 ];

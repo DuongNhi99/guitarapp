@@ -78,8 +78,8 @@ export default function TunerPanel({
                           : "border-red-500/60 bg-red-900/10",
                     )}
                   >
-                    <span className="text-3xl font-extrabold text-white leading-none">{noteEn}</span>
-                    <span className="text-xs text-gray-400 mt-0.5">{noteVi}</span>
+                    <span className="text-3xl font-extrabold text-white leading-none">{useVi ? noteVi : noteEn}</span>
+                    <span className="text-xs text-gray-400 mt-0.5">{useVi ? noteEn : noteVi}</span>
                   </div>
                   <div className="flex flex-col gap-1.5 text-sm">
                     <div className="text-gray-400">
@@ -89,7 +89,7 @@ export default function TunerPanel({
                     <div className="text-gray-400">
                       {"Dây gần nhất: "}
                       <span className="text-purple-300 font-semibold">
-                        {OPEN_LABELS_EN[targetSi]} {"—"} {OPEN_LABELS_VI[targetSi]}
+                        {useVi ? OPEN_LABELS_VI[targetSi] : OPEN_LABELS_EN[targetSi]}
                       </span>
                     </div>
                     <div className={cn("font-semibold", inTune ? "text-green-400" : close ? "text-yellow-400" : "text-red-400")}>
@@ -129,8 +129,7 @@ export default function TunerPanel({
                           : "bg-gray-800/50 text-gray-600",
                       )}
                     >
-                      <span className="font-bold text-[11px]">{OPEN_LABELS_EN[si]}</span>
-                      <span className="text-[9px] opacity-70">{OPEN_LABELS_VI[si]}</span>
+                      <span className="font-bold text-[11px]">{useVi ? OPEN_LABELS_VI[si] : OPEN_LABELS_EN[si]}</span>
                     </div>
                   ))}
                 </div>
