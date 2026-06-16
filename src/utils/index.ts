@@ -65,7 +65,7 @@ export function parseChordContent(content: string): Token[][] {
 }
 
 // Transpose utilities
-const NOTES_SHARP = [
+export const NOTES_SHARP = [
   "C",
   "C#",
   "D",
