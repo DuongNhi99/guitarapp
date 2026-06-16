@@ -18,14 +18,14 @@ const DIATONIC_QUALITIES: Record<string, string[]> = {
   natural_minor: ["m", "°", "", "m", "m", "", ""],
 };
 
-const WHITE_NOTE_CLASSES = [0, 2, 4, 5, 7, 9, 11];
-const BLACK_KEY_OFFSETS = [
-  { afterWhite: 0, nc: 1 },
-  { afterWhite: 1, nc: 3 },
-  { afterWhite: 3, nc: 6 },
-  { afterWhite: 4, nc: 8 },
-  { afterWhite: 5, nc: 10 },
-];
+// const WHITE_NOTE_CLASSES = [0, 2, 4, 5, 7, 9, 11];
+// const BLACK_KEY_OFFSETS = [
+//   { afterWhite: 0, nc: 1 },
+//   { afterWhite: 1, nc: 3 },
+//   { afterWhite: 3, nc: 6 },
+//   { afterWhite: 4, nc: 8 },
+//   { afterWhite: 5, nc: 10 },
+// ];
 
 const EMPTY_MARKED = new Set<MarkedKey>();
 
@@ -44,7 +44,8 @@ const DOUBLE_TOP_IDX = 1;
 const DOUBLE_BOT_IDX = 3;
 
 // ─── Piano Keyboard ──────────────────────────────────────────────────────────
-
+// TODO: re-enable when piano view is ready
+/*
 function PianoKeyboard({
   rootNote,
   scaleNoteClasses,
@@ -161,6 +162,7 @@ function PianoKeyboard({
     </div>
   );
 }
+*/
 
 // ─── Guitar Section (mini fretboard for one position) ────────────────────────
 
@@ -171,6 +173,9 @@ function GuitarSection({
   rootNote,
   scaleNoteClasses,
   useVi,
+  isPlaying,
+  onPlay,
+  activeNote,
 }: {
   label: string;
   start: number;
@@ -178,21 +183,39 @@ function GuitarSection({
   rootNote: number;
   scaleNoteClasses: Set<number>;
   useVi: boolean;
+  isPlaying?: boolean;
+  onPlay?: () => void;
+  activeNote?: { si: number; fret: number } | null;
 }) {
   const frets = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   const isOpenSection = start === 0;
 
   return (
-    <div
-      className="rounded-xl overflow-hidden border border-amber-800/40 shadow-lg shadow-black/60 flex-1"
-      style={{ minWidth: 0 }}
-    >
+    <div className="rounded-xl overflow-hidden border border-amber-800/40 shadow-lg shadow-black/60">
       {/* Section header */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-amber-950/60 border-b border-amber-800/40">
         <span className="text-xs font-bold text-amber-300">{label}</span>
-        <span className="text-[10px] text-amber-600 font-mono">
-          {isOpenSection ? `Nut – ${end}` : `${start} – ${end}`}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-amber-600 font-mono">
+            {isOpenSection ? `Nut – ${end}` : `${start} – ${end}`}
+          </span>
+          {onPlay && (
+            <button
+              onClick={onPlay}
+              className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold transition-all border",
+                isPlaying
+                  ? "bg-red-500/20 border-red-500/70 text-red-300"
+                  : "bg-amber-500/10 border-amber-600/50 text-amber-400 hover:bg-amber-500/20",
+              )}
+            >
+              {isPlaying
+                ? <Square className="w-2.5 h-2.5" />
+                : <Play className="w-2.5 h-2.5" />}
+              {isPlaying ? "Dừng" : "Chơi"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Fretboard body */}
@@ -253,6 +276,7 @@ function GuitarSection({
                 const midi = openMidi;
                 const nc = noteClass(midi);
                 const status = nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
+                const isActive = activeNote?.si === si && activeNote?.fret === 0;
                 return (
                   <div className="w-8 flex-shrink-0 h-10 flex items-center justify-center relative">
                     {/* String line */}
@@ -268,15 +292,17 @@ function GuitarSection({
                       }}
                     />
                     {status && (
-                      <div className={cn(
-                        "relative z-10 rounded-full flex items-center justify-center font-black text-white leading-none",
-                        status === "root"
-                          ? "w-7 h-7 bg-amber-500 border-2 border-amber-200/80 text-[9px]"
-                          : "w-5 h-5 bg-teal-500 border border-teal-200/70 text-[8px]",
-                      )}
+                      <div
+                        className={cn(
+                          "relative z-10 rounded-full flex items-center justify-center font-black text-white leading-none transition-transform duration-100",
+                          status === "root"
+                            ? "w-7 h-7 bg-amber-500 border-2 border-amber-200/80 text-[9px]"
+                            : "w-5 h-5 bg-teal-500 border border-teal-200/70 text-[8px]",
+                          isActive && "scale-125",
+                        )}
                         style={status === "root"
-                          ? { boxShadow: "0 0 0 2px rgba(251,191,36,.32),0 0 10px rgba(251,191,36,.55)" }
-                          : { boxShadow: "0 0 6px rgba(20,184,166,.4)" }}
+                          ? { boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,.75),0 0 14px rgba(251,191,36,.9)" : "0 0 0 2px rgba(251,191,36,.32),0 0 10px rgba(251,191,36,.55)" }
+                          : { boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,.75),0 0 12px rgba(20,184,166,.8)" : "0 0 6px rgba(20,184,166,.4)" }}
                       >
                         {getNoteName(midi, useVi)}
                       </div>
@@ -298,6 +324,7 @@ function GuitarSection({
                 const midi = openMidi + f;
                 const nc = noteClass(midi);
                 const status = nc === rootNote ? "root" : scaleNoteClasses.has(nc) ? "note" : null;
+                const isActive = activeNote?.si === si && activeNote?.fret === f;
                 const isInlay =
                   (isSingleDot && INLAY_FRETS.has(f) && f !== DOUBLE_DOT) ||
                   ((isDoubleTop || isDoubleBot) && f === DOUBLE_DOT);
@@ -340,14 +367,15 @@ function GuitarSection({
                     {status && (
                       <div
                         className={cn(
-                          "relative z-10 rounded-full flex items-center justify-center font-black text-white leading-none select-none",
+                          "relative z-10 rounded-full flex items-center justify-center font-black text-white leading-none select-none transition-transform duration-100",
                           status === "root"
                             ? "w-7 h-7 bg-amber-500 border-2 border-amber-200/80 text-[9px]"
                             : "w-5 h-5 bg-teal-500 border border-teal-200/70 text-[8px]",
+                          isActive && "scale-125",
                         )}
                         style={status === "root"
-                          ? { boxShadow: "0 0 0 2px rgba(251,191,36,.32),0 0 10px rgba(251,191,36,.55)" }
-                          : { boxShadow: "0 0 6px rgba(20,184,166,.4)" }}
+                          ? { boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,.75),0 0 14px rgba(251,191,36,.9)" : "0 0 0 2px rgba(251,191,36,.32),0 0 10px rgba(251,191,36,.55)" }
+                          : { boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,.75),0 0 12px rgba(20,184,166,.8)" : "0 0 6px rgba(20,184,166,.4)" }}
                       >
                         {getNoteName(midi, useVi)}
                       </div>
@@ -384,13 +412,14 @@ function GuitarSection({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-type Instrument = "piano" | "guitar";
+// type Instrument = "piano" | "guitar";
 
 export default function ScaleSearchPage() {
   const [rootNote, setRootNote] = useState<number>(0);
   const [scaleType, setScaleType] = useState<string>("major");
-  const [instrument, setInstrument] = useState<Instrument>("piano");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playingSection, setPlayingSection] = useState<string | null>(null);
+  const [activeNote, setActiveNote] = useState<{ si: number; fret: number } | null>(null);
   const [useVi, setUseVi] = useState(true);
 
   const audioRef = useRef<AudioContext | null>(null);
@@ -428,14 +457,17 @@ export default function ScaleSearchPage() {
     [rootNote, scaleNoteClasses],
   );
 
-  function stopScale() {
+  function stopAll() {
     playTimeoutsRef.current.forEach(clearTimeout);
     playTimeoutsRef.current = [];
     setIsPlaying(false);
+    setPlayingSection(null);
+    setActiveNote(null);
   }
 
   function playScale() {
-    if (isPlaying) { stopScale(); return; }
+    if (isPlaying) { stopAll(); return; }
+    stopAll();
     setIsPlaying(true);
     const ctx = getCtx();
     const baseMidi = 60 + rootNote;
@@ -445,6 +477,32 @@ export default function ScaleSearchPage() {
         pluck(midiToFreq(midi), ctx, 0.65);
         if (idx === midiNotes.length - 1) setIsPlaying(false);
       }, idx * 360);
+      playTimeoutsRef.current.push(t);
+    });
+  }
+
+  function playSection(label: string, start: number, end: number) {
+    if (playingSection === label) { stopAll(); return; }
+    stopAll();
+    setPlayingSection(label);
+    const ctx = getCtx();
+    const notes: { si: number; fret: number; midi: number }[] = [];
+    for (const si of [0, 1, 2, 3, 4, 5]) {
+      const openMidi = OPEN_MIDI[si];
+      for (let f = start; f <= end; f++) {
+        if (scaleNoteClasses.has(noteClass(openMidi + f)))
+          notes.push({ si, fret: f, midi: openMidi + f });
+      }
+    }
+    notes.forEach(({ si, fret, midi }, idx) => {
+      const t = setTimeout(() => {
+        pluck(midiToFreq(midi), ctx, 0.6);
+        setActiveNote({ si, fret });
+        if (idx === notes.length - 1) {
+          const clear = setTimeout(() => { setPlayingSection(null); setActiveNote(null); }, 400);
+          playTimeoutsRef.current.push(clear);
+        }
+      }, idx * 280);
       playTimeoutsRef.current.push(t);
     });
   }
@@ -484,8 +542,8 @@ export default function ScaleSearchPage() {
         </div>
 
         {/* ── Selectors ── */}
-        <div className="flex flex-wrap gap-3 mb-5 items-end">
-          <div className="flex-1 min-w-[140px]">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 mb-5 items-end">
+          <div className="col-span-1 sm:flex-1 sm:min-w-[140px]">
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
               Nốt gốc
             </label>
@@ -502,7 +560,21 @@ export default function ScaleSearchPage() {
             </select>
           </div>
 
-          <div className="flex-[2] min-w-[200px]">
+          <div className="col-span-1 flex items-end sm:hidden">
+            <div className="w-full">
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                Tên nốt
+              </label>
+              <button
+                onClick={() => setUseVi((v) => !v)}
+                className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition-colors"
+              >
+                {useVi ? "VI" : "EN"}
+              </button>
+            </div>
+          </div>
+
+          <div className="col-span-2 sm:flex-[2] sm:min-w-[200px]">
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
               Loại âm giai
             </label>
@@ -517,7 +589,7 @@ export default function ScaleSearchPage() {
             </select>
           </div>
 
-          <div>
+          <div className="hidden sm:block">
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
               Tên nốt
             </label>
@@ -550,21 +622,21 @@ export default function ScaleSearchPage() {
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1">
             {scaleNotes.map(({ nc, vi, en }, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-1">
+              <div key={idx} className="flex flex-col items-center gap-1 flex-shrink-0">
                 <span className="text-[10px] text-gray-500 font-mono font-semibold">
                   {DEGREE_NAMES[idx]}
                 </span>
                 <div className={cn(
-                  "w-14 h-14 rounded-xl flex flex-col items-center justify-center border font-bold",
+                  "w-10 h-10 sm:w-14 sm:h-14 rounded-xl flex flex-col items-center justify-center border font-bold",
                   nc === rootNote
                     ? "bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/30"
                     : "bg-gray-800 border-gray-700 text-gray-100",
                 )}>
-                  <span className="text-sm leading-tight">{useVi ? vi : en}</span>
+                  <span className="text-xs sm:text-sm leading-tight">{useVi ? vi : en}</span>
                   {nc !== rootNote && (
-                    <span className="text-[9px] text-gray-500 mt-0.5">
+                    <span className="text-[8px] sm:text-[9px] text-gray-500 mt-0.5">
                       {useVi ? en : vi}
                     </span>
                   )}
@@ -574,38 +646,14 @@ export default function ScaleSearchPage() {
           </div>
         </div>
 
-        {/* ── Instrument tabs ── */}
-        <div className="flex gap-2 mb-0">
-          {(["piano", "guitar"] as const).map((key) => (
-            <button
-              key={key}
-              onClick={() => setInstrument(key)}
-              className={cn(
-                "px-5 py-2.5 rounded-t-xl text-sm font-semibold border-x border-t transition-all capitalize",
-                instrument === key
-                  ? "bg-gray-900 border-gray-700 text-white"
-                  : "bg-gray-900/40 border-gray-800 text-gray-500 hover:text-gray-300",
-              )}
-            >
-              {key === "piano" ? "🎹 Piano" : "🎸 Guitar"}
-            </button>
-          ))}
-        </div>
-
-        {/* ── Instrument panel ── */}
-        <div className="bg-gray-900 border border-gray-700 rounded-b-xl rounded-tr-xl p-4 mb-4">
-          {instrument === "piano" ? (
-            <PianoKeyboard
-              rootNote={rootNote}
-              scaleNoteClasses={scaleNoteClasses}
-              useVi={useVi}
-            />
-          ) : (
-            <div className="space-y-3">
-              {/* Full fretboard overview (scrollable) */}
-              <p className="text-xs text-gray-500 mb-1">
-                Tổng quan — tất cả các thế tay:
-              </p>
+        {/* ── Guitar panel ── */}
+        {/* TODO: re-add instrument tabs (piano/guitar) when piano is ready */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
+          <div className="space-y-3">
+            <p className="text-xs text-gray-500 mb-1">
+              Tổng quan — tất cả các thế tay:
+            </p>
+            <div className="overflow-x-auto -mx-1 px-1 pb-1">
               <Fretboard
                 marked={EMPTY_MARKED}
                 showNames={true}
@@ -613,24 +661,26 @@ export default function ScaleSearchPage() {
                 onToggle={() => {}}
                 getScaleStatus={getScaleStatus}
               />
-
-              {/* 3 position sections */}
-              <p className="text-xs text-gray-500 mt-4 mb-1">
-                3 thế tay chính trên cần đàn:
-              </p>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {SECTIONS.map((s) => (
-                  <GuitarSection
-                    key={s.label}
-                    {...s}
-                    rootNote={rootNote}
-                    scaleNoteClasses={scaleNoteClasses}
-                    useVi={useVi}
-                  />
-                ))}
-              </div>
             </div>
-          )}
+
+            <p className="text-xs text-gray-500 mt-4 mb-1">
+              3 thế tay chính trên cần đàn:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {SECTIONS.map((s) => (
+                <GuitarSection
+                  key={s.label}
+                  {...s}
+                  rootNote={rootNote}
+                  scaleNoteClasses={scaleNoteClasses}
+                  useVi={useVi}
+                  isPlaying={playingSection === s.label}
+                  onPlay={() => playSection(s.label, s.start, s.end)}
+                  activeNote={playingSection === s.label ? activeNote : null}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* ── Diatonic chords ── */}
