@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Play, Square, RotateCcw, Volume2, Music2 } from "lucide-react";
-import { pluck } from "../utils/guitarAudio";
+import { pluck, GUITAR_TYPES, type GuitarType } from "../utils/guitarAudio";
 import { CHORDS, OPEN_MIDI, midiToFreq } from "../utils/guitarConstants";
 import { cn } from "../utils";
 
@@ -107,6 +107,7 @@ export default function ChordAccompanimentPage() {
   const [pattern, setPattern] = useState("slow_rock");
   const [volume, setVolume] = useState(0.75);
   const [loop, setLoop] = useState(true);
+  const [guitarType, setGuitarType] = useState<GuitarType>("classic");
 
   // Audio engine state (never triggers re-renders)
   const ctxRef      = useRef<AudioContext | null>(null);
@@ -118,16 +119,18 @@ export default function ChordAccompanimentPage() {
   const isPlayRef   = useRef(false);
 
   // Mirror latest React state into refs so scheduler always reads fresh values
-  const seqRef = useRef(sequence);
-  const bpmRef = useRef(bpm);
-  const patRef = useRef(pattern);
-  const volRef = useRef(volume);
-  const loopRef = useRef(loop);
+  const seqRef        = useRef(sequence);
+  const bpmRef        = useRef(bpm);
+  const patRef        = useRef(pattern);
+  const volRef        = useRef(volume);
+  const loopRef       = useRef(loop);
+  const guitarTypeRef = useRef<GuitarType>(guitarType);
   useEffect(() => { seqRef.current = sequence; }, [sequence]);
   useEffect(() => { bpmRef.current = bpm; }, [bpm]);
   useEffect(() => { patRef.current = pattern; }, [pattern]);
   useEffect(() => { volRef.current = volume; }, [volume]);
   useEffect(() => { loopRef.current = loop; }, [loop]);
+  useEffect(() => { guitarTypeRef.current = guitarType; }, [guitarType]);
 
   // Mutable function refs — reassigned each render so callbacks never go stale
   const tickRef  = useRef<() => void>(() => {});
@@ -179,10 +182,11 @@ export default function ChordAccompanimentPage() {
         const when  = t0 + ev.offset * bd;
         const frets = CHORDS[slot.chord];
         if (!frets) continue;
-        const order = ev.dir === "down" ? [0,1,2,3,4,5] : [5,4,3,2,1,0];
+        const order      = ev.dir === "down" ? [0,1,2,3,4,5] : [5,4,3,2,1,0];
+        const strumDelay = GUITAR_TYPES[guitarTypeRef.current].strumDelay;
         order.forEach((s, i) => {
           if (frets[s] < 0) return;
-          pluck(midiToFreq(OPEN_MIDI[s] + frets[s]), ctx, ev.vol * volRef.current, when + i * 0.012);
+          pluck(midiToFreq(OPEN_MIDI[s] + frets[s]), ctx, ev.vol * volRef.current, when + i * strumDelay, guitarTypeRef.current);
         });
       }
 
@@ -304,6 +308,26 @@ export default function ChordAccompanimentPage() {
               <option key={k} value={k}>{p.label}</option>
             ))}
           </select>
+        </div>
+
+        {/* Guitar type */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-medium text-gray-400 shrink-0">Đàn</span>
+          {(Object.entries(GUITAR_TYPES) as [GuitarType, typeof GUITAR_TYPES[GuitarType]][]).map(([key, cfg]) => (
+            <button
+              key={key}
+              onClick={() => setGuitarType(key)}
+              title={cfg.description}
+              className={cn(
+                "px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors",
+                guitarType === key
+                  ? "border-purple-500 bg-purple-900/40 text-purple-300"
+                  : "border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300",
+              )}
+            >
+              {cfg.label}
+            </button>
+          ))}
         </div>
 
         {/* Volume */}
