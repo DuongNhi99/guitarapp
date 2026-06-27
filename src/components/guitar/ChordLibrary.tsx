@@ -5,7 +5,6 @@ import {
 } from "../../utils/guitarConstants";
 
 interface ChordLibraryProps {
-  activeChord: string | null;
   activeChordGroup: number;
   playingCanon: string | null;
   canonIdx: number;
@@ -21,7 +20,7 @@ interface ChordLibraryProps {
 }
 
 export default function ChordLibrary({
-  activeChord, activeChordGroup, playingCanon, canonIdx, viewChord, activeScaleRoot, activeScaleType, useVi,
+  activeChordGroup, playingCanon, canonIdx, viewChord, activeScaleRoot, activeScaleType, useVi,
   onSelectChord, onSetChordGroup, onPlayCanon, onSetScaleRoot, onSetScaleType,
 }: ChordLibraryProps) {
   return (

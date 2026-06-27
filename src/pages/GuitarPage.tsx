@@ -17,7 +17,7 @@ export default function GuitarPage() {
   const [showNames, setShowNames] = useState(false);
   const [useVi, setUseVi] = useState(true);
   const [muted, setMuted] = useState(false);
-  const [activeChord, setActiveChord] = useState<string | null>(null);
+  const [, setActiveChord] = useState<string | null>(null);
   const [activeChordGroup, setActiveChordGroup] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
   const [lastNote, setLastNote] = useState<LastNote | null>(null);
@@ -360,7 +360,6 @@ export default function GuitarPage() {
           getScaleStatus={getScaleStatus}
         />
         <ChordLibrary
-          activeChord={activeChord}
           activeChordGroup={activeChordGroup}
           playingCanon={playingCanon}
           canonIdx={canonIdx}
