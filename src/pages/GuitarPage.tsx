@@ -30,7 +30,9 @@ export default function GuitarPage() {
   const [tunerMidi, setTunerMidi] = useState(-1);
   const [tunerVolume, setTunerVolume] = useState(0);
 
+  const [viewChord, setViewChord] = useState<string | null>(null);
   const [playingCanon, setPlayingCanon] = useState<string | null>(null);
+  const [canonIdx, setCanonIdx] = useState(-1);
   const canonTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const playingCanonRef = useRef<string | null>(null);
   const canonSourcesRef = useRef<AudioBufferSourceNode[]>([]);
@@ -86,11 +88,13 @@ export default function GuitarPage() {
     setLastNote({ vi: getNoteName(midi, true), en: getNoteName(midi, false), midi, si, fret });
     playNote(si, fret);
     setActiveChord(null);
+    setViewChord(null);
   }, [playNote]);
 
   function clearAll() {
     setMarked(new Set());
     setActiveChord(null);
+    setViewChord(null);
   }
 
   function playAll() {
@@ -109,6 +113,7 @@ export default function GuitarPage() {
     frets.forEach((f, si) => { if (f >= 0) next.add(mk(si, f)); });
     setMarked(next);
     setActiveChord(name);
+    setViewChord(name);
     if (!muted) {
       const ctx = getCtx();
       frets.forEach((f, si) => {
@@ -124,12 +129,17 @@ export default function GuitarPage() {
     canonSourcesRef.current = [];
     playingCanonRef.current = null;
     setPlayingCanon(null);
+    setCanonIdx(-1);
+    setActiveChord(null);
+    setMarked(new Set());
+    setLastNote(null);
   }
 
   function playCanonProgression(progressionKey: string, chords: string[]) {
     if (playingCanonRef.current === progressionKey) { stopCanon(); return; }
     stopCanon();
     if (muted) return;
+    setViewChord(null);
     playingCanonRef.current = progressionKey;
     setPlayingCanon(progressionKey);
     const ctx = getCtx();
@@ -142,7 +152,16 @@ export default function GuitarPage() {
     validChords.forEach((name, ci) => {
       const chordStart = ci * chordSec;
       canonTimeoutsRef.current.push(
-        setTimeout(() => setActiveChord(name), Math.round(chordStart * 1000)),
+        setTimeout(() => {
+          setActiveChord(name);
+          setCanonIdx(ci);
+          const frets = CHORDS[name];
+          if (frets) {
+            const next = new Set<MarkedKey>();
+            frets.forEach((f, si) => { if (f >= 0) next.add(mk(si, f)); });
+            setMarked(next);
+          }
+        }, Math.round(chordStart * 1000)),
       );
       const frets = CHORDS[name];
       for (let b = 0; b < 4; b++) {
@@ -172,6 +191,10 @@ export default function GuitarPage() {
       setTimeout(() => {
         playingCanonRef.current = null;
         setPlayingCanon(null);
+        setCanonIdx(-1);
+        setActiveChord(null);
+        setMarked(new Set());
+        setLastNote(null);
         canonTimeoutsRef.current = [];
         canonSourcesRef.current = [];
       }, endMs),
@@ -300,20 +323,20 @@ export default function GuitarPage() {
             onStop={stopTuner}
           />
         )}
-        {(activeChord || activeScaleRoot !== null) && (
+        {(viewChord || activeScaleRoot !== null) && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            {activeChord && (
+            {viewChord && (
               <>
                 <span className="text-gray-500 text-xs">{"Đang xem:"}</span>
                 <span className="px-3 py-0.5 rounded-full bg-purple-600/20 border border-purple-500/40 text-purple-300 text-sm font-bold">
-                  {activeChord}
+                  {viewChord}
                 </span>
               </>
             )}
             {activeScaleRoot !== null && (
               <>
-                {activeChord && <span className="text-gray-700 text-xs">·</span>}
-                {!activeChord && <span className="text-gray-500 text-xs">{"Thang âm:"}</span>}
+                {viewChord && <span className="text-gray-700 text-xs">·</span>}
+                {!viewChord && <span className="text-gray-500 text-xs">{"Thang âm:"}</span>}
                 <span className="px-3 py-0.5 rounded-full bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 text-sm font-bold">
                   {(useVi ? NOTE_VI[activeScaleRoot] : NOTE_EN[activeScaleRoot])}{" "}
                   {SCALES[activeScaleType]?.label ?? ''}
@@ -340,6 +363,8 @@ export default function GuitarPage() {
           activeChord={activeChord}
           activeChordGroup={activeChordGroup}
           playingCanon={playingCanon}
+          canonIdx={canonIdx}
+          viewChord={viewChord}
           activeScaleRoot={activeScaleRoot}
           activeScaleType={activeScaleType}
           useVi={useVi}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Play, Square, RotateCcw, Volume2, Music2 } from "lucide-react";
 import { pluck, GUITAR_TYPES, type GuitarType } from "../utils/guitarAudio";
 import { CHORDS, OPEN_MIDI, midiToFreq } from "../utils/guitarConstants";
@@ -75,6 +75,7 @@ const CHORD_GROUPS = [
   { label: "Trưởng", names: ["C", "D", "E", "F", "G", "A", "B", "Bb"] },
   { label: "Thứ",    names: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm", "F#m"] },
   { label: "7",      names: ["C7", "D7", "E7", "G7", "A7", "B7", "Am7", "Dm7"] },
+  { label: "Dim",    names: ["C°", "D°", "E°", "F#°", "G°", "A°", "B°"] },
 ];
 
 // ── Preset progressions ────────────────────────────────────────────────────────
@@ -147,10 +148,9 @@ export default function ChordAccompanimentPage() {
     if (rafRef.current)   { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     if (ctxRef.current)   { ctxRef.current.close(); ctxRef.current = null; }
   }
-  stopRef.current = stop;
 
   // ── scheduler tick (runs every 50 ms via setInterval) ───────────────────────
-  tickRef.current = () => {
+  function tick() {
     const ctx = ctxRef.current;
     if (!ctx || !isPlayRef.current) return;
 
@@ -193,10 +193,10 @@ export default function ChordAccompanimentPage() {
       nextTimeRef.current = t0 + slot.beats * bd;
       nextSlotRef.current++;
     }
-  };
+  }
 
   // ── RAF visual sync ──────────────────────────────────────────────────────────
-  rafCbRef.current = () => {
+  function rafCb() {
     const ctx = ctxRef.current;
     if (!ctx || !isPlayRef.current) { rafRef.current = null; return; }
     const now = ctx.currentTime;
@@ -206,7 +206,7 @@ export default function ChordAccompanimentPage() {
     }
     setCurrentIdx(found);
     rafRef.current = requestAnimationFrame(() => rafCbRef.current());
-  };
+  }
 
   // ── start ────────────────────────────────────────────────────────────────────
   function start() {
@@ -223,7 +223,13 @@ export default function ChordAccompanimentPage() {
     timerRef.current = setInterval(() => tickRef.current(), 50);
     rafRef.current = requestAnimationFrame(() => rafCbRef.current());
   }
-  startRef.current = start;
+
+  useLayoutEffect(() => {
+    stopRef.current  = stop;
+    tickRef.current  = tick;
+    rafCbRef.current = rafCb;
+    startRef.current = start;
+  });
 
   // Cleanup on unmount
   useEffect(() => () => stopRef.current(), []);

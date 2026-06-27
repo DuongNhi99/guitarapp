@@ -63,9 +63,14 @@ export const CHORDS: Record<string, number[]> = {
   Dm7: [-1, -1, 0, 2, 1, 1],
   "F#m": [2, 4, 4, 2, 2, 2],
   Bb: [-1, 1, 3, 3, 3, 1],
-  "B°": [-1, 2, 3, 4, 3, -1],
-  "E°": [0, 1, 2, 0, -1, -1],
-  "F#°": [-1, -1, 4, 5, 4, 5],
+  // Movable diminished (m7b5) shape: root on D string, next 3 strings one fret up
+  "C°":  [-1, -1, 10, 11, 11, 11],
+  "D°":  [-1, -1, 0, 1, 1, 1],
+  "E°":  [-1, -1, 2, 3, 3, 3],
+  "F#°": [-1, -1, 4, 5, 5, 5],
+  "G°":  [-1, -1, 5, 6, 6, 6],
+  "A°":  [-1, -1, 7, 8, 8, 8],
+  "B°":  [-1, -1, -1, 2, -1, 1],
 };
 
 export const CANON_PROGRESSIONS = [
@@ -82,6 +87,7 @@ export const CHORD_GROUPS = [
   { label: "Trưởng",  names: ["C", "D", "E", "F", "G", "A", "B"] },
   { label: "Thứ",     names: ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"] },
   { label: "7",       names: ["C7", "D7", "E7", "G7", "A7", "B7", "Am7", "Dm7"] },
+  { label: "Dim",     names: ["C°", "D°", "E°", "F#°", "G°", "A°", "B°"] },
   { label: "Thang âm", names: [] as string[] },
 ];
 

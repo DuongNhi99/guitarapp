@@ -8,6 +8,8 @@ interface ChordLibraryProps {
   activeChord: string | null;
   activeChordGroup: number;
   playingCanon: string | null;
+  canonIdx: number;
+  viewChord: string | null;
   activeScaleRoot: number | null;
   activeScaleType: string;
   useVi: boolean;
@@ -19,7 +21,7 @@ interface ChordLibraryProps {
 }
 
 export default function ChordLibrary({
-  activeChord, activeChordGroup, playingCanon, activeScaleRoot, activeScaleType, useVi,
+  activeChord, activeChordGroup, playingCanon, canonIdx, viewChord, activeScaleRoot, activeScaleType, useVi,
   onSelectChord, onSetChordGroup, onPlayCanon, onSetScaleRoot, onSetScaleType,
 }: ChordLibraryProps) {
   return (
@@ -78,7 +80,7 @@ export default function ChordLibrary({
                       onClick={() => onSelectChord(name)}
                       className={cn(
                         "px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 whitespace-nowrap flex-shrink-0 min-w-[40px] text-center",
-                        activeChord === name && playingCanon === key
+                        (playingCanon === key && canonIdx === i) || viewChord === name
                           ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40 ring-1 ring-purple-400/50"
                           : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
                       )}
@@ -169,7 +171,7 @@ export default function ChordLibrary({
                   onClick={() => onSelectChord(name)}
                   className={cn(
                     "px-4 py-3 rounded-xl text-sm font-bold transition-all active:scale-95 min-w-[52px] text-center",
-                    activeChord === name
+                    viewChord === name
                       ? "bg-purple-600 text-white shadow-lg shadow-purple-900/40"
                       : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-500",
                   )}
